@@ -1,0 +1,716 @@
+<!doctype html>
+<html lang="zh-CN" data-js="off">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>李梦豪 · Java 后端开发工程师</title>
+<meta name="description" content="李梦豪 — Java 后端开发工程师（2027 届）。高并发与分布式一致性、微服务治理、AI Agent 工程化。求职：福州 / 广州 / 深圳。" />
+<meta name="theme-color" content="#06080a" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="李梦豪 · Java 后端开发工程师" />
+<meta property="og:description" content="高并发与分布式一致性 · 微服务治理 · AI Agent 工程化" />
+<script>document.documentElement.dataset.js = 'on';</script>
+<style>
+  :root {
+    --bg:        #06080a;
+    --bg-raise:  #0b0f13;
+    --line:      rgba(255,255,255,.075);
+    --line-str:  rgba(255,255,255,.16);
+    --fg:        #e8edf0;
+    --fg-dim:    #8a969e;
+    --fg-faint:  #5a656c;
+    --phos:      #7cffb2;
+    --amber:     #ffb454;
+    --cyan:      #5ce1e6;
+    --rose:      #ff7a90;
+
+    --mono: "Cascadia Mono", ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    --sans: "Segoe UI Variable Display", "Segoe UI", -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", system-ui, sans-serif;
+
+    --pad: clamp(20px, 5vw, 96px);
+    --maxw: 1240px;
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.7;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: inherit; text-decoration: none; }
+  ::selection { background: rgba(124,255,178,.26); color: #fff; }
+
+  /* ---------- 背景层 ---------- */
+  #field { position: fixed; inset: 0; z-index: 0; display: block; }
+  .grid {
+    position: fixed; inset: 0; z-index: 1; pointer-events: none;
+    background-image:
+      linear-gradient(to right, rgba(255,255,255,.028) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255,255,255,.028) 1px, transparent 1px);
+    background-size: 88px 88px;
+    mask-image: radial-gradient(ellipse 120% 90% at 50% 0%, #000 20%, transparent 78%);
+  }
+  .scan {
+    position: fixed; inset: 0; z-index: 2; pointer-events: none; opacity: .5;
+    background: repeating-linear-gradient(to bottom, rgba(255,255,255,.022) 0 1px, transparent 1px 3px);
+    mix-blend-mode: overlay;
+  }
+  .vig {
+    position: fixed; inset: 0; z-index: 2; pointer-events: none;
+    background: radial-gradient(ellipse 100% 70% at 50% 42%, transparent 40%, rgba(0,0,0,.62) 100%);
+  }
+
+  /* ---------- 顶部状态条 ---------- */
+  .topbar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 30;
+    display: flex; align-items: center; gap: 18px;
+    height: 42px; padding: 0 var(--pad);
+    border-bottom: 1px solid var(--line);
+    background: rgba(6,8,10,.74);
+    backdrop-filter: blur(14px);
+    font-family: var(--mono); font-size: 11.5px; color: var(--fg-dim);
+    letter-spacing: .06em;
+  }
+  .topbar .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--phos); box-shadow: 0 0 10px var(--phos); animation: pulse 2.4s ease-in-out infinite; }
+  .topbar .sep { color: var(--fg-faint); }
+  .topbar .right { margin-left: auto; display: flex; gap: 18px; }
+  .topbar a:hover { color: var(--phos); }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.32} }
+  .bar { position: fixed; top: 42px; left: 0; height: 1px; background: var(--phos); z-index: 31; width: 0; box-shadow: 0 0 8px var(--phos); }
+
+  /* ---------- 布局 ---------- */
+  .wrap { position: relative; z-index: 10; }
+  .shell { max-width: var(--maxw); margin: 0 auto; padding: 0 var(--pad); }
+  section { padding: clamp(72px, 11vw, 150px) 0; }
+
+  .slabel {
+    display: flex; align-items: baseline; gap: 14px;
+    font-family: var(--mono); font-size: 11.5px; letter-spacing: .22em;
+    color: var(--fg-faint); text-transform: uppercase;
+    margin: 0 0 40px;
+  }
+  .slabel::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+
+  /* ---------- Hero ---------- */
+  .hero { padding-top: clamp(120px, 17vw, 210px); }
+  .hero-grid { display: grid; grid-template-columns: minmax(0,1.15fr) minmax(0,.85fr); gap: clamp(32px, 5vw, 72px); align-items: center; }
+
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-family: var(--mono); font-size: 11.5px; letter-spacing: .18em;
+    color: var(--phos); border: 1px solid rgba(124,255,178,.28);
+    background: rgba(124,255,178,.05);
+    padding: 6px 13px; border-radius: 2px; margin-bottom: 26px;
+  }
+  h1.name {
+    font-family: var(--sans);
+    font-size: clamp(52px, 10.5vw, 128px);
+    line-height: .92; margin: 0 0 6px;
+    font-weight: 800; letter-spacing: -.045em;
+    text-shadow: 0 0 60px rgba(124,255,178,.14);
+  }
+  h1.name .zh { display: block; }
+  h1.name .en {
+    display: block; font-family: var(--mono); font-weight: 400;
+    font-size: clamp(12px, 1.5vw, 15px); letter-spacing: .42em;
+    color: var(--fg-faint); margin-top: 18px; text-shadow: none;
+  }
+  .role {
+    font-family: var(--mono); font-size: clamp(14px, 1.9vw, 19px);
+    color: var(--fg); margin: 26px 0 0; min-height: 1.8em;
+  }
+  .role .caret { display: inline-block; width: 9px; height: 1.05em; background: var(--phos); vertical-align: -3px; margin-left: 3px; animation: blink 1.05s steps(1,end) infinite; }
+  @keyframes blink { 0%,49%{opacity:1} 50%,100%{opacity:0} }
+
+  .lede { color: var(--fg-dim); max-width: 46ch; margin: 22px 0 0; }
+  .lede b { color: var(--fg); font-weight: 600; }
+
+  .cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 38px; }
+  .btn {
+    font-family: var(--mono); font-size: 12.5px; letter-spacing: .1em;
+    padding: 13px 22px; border: 1px solid var(--line-str); border-radius: 2px;
+    color: var(--fg); background: transparent; cursor: pointer;
+    transition: border-color .25s, color .25s, background .25s, transform .25s;
+  }
+  .btn:hover { border-color: var(--phos); color: var(--phos); background: rgba(124,255,178,.06); transform: translateY(-2px); }
+  .btn.primary { border-color: var(--phos); color: #04140c; background: var(--phos); font-weight: 600; }
+  .btn.primary:hover { background: #9dffc6; color: #04140c; }
+
+  /* ---------- 仪表盘 ---------- */
+  .panel {
+    border: 1px solid var(--line-str); border-radius: 3px;
+    background: linear-gradient(180deg, rgba(18,24,29,.92), rgba(9,12,15,.92));
+    position: relative; overflow: hidden;
+  }
+  .panel::before, .panel::after {
+    content: ""; position: absolute; width: 11px; height: 11px; pointer-events: none;
+    border-color: var(--phos); border-style: solid; opacity: .8;
+  }
+  .panel::before { top: -1px; left: -1px; border-width: 1px 0 0 1px; }
+  .panel::after  { bottom: -1px; right: -1px; border-width: 0 1px 1px 0; }
+  .panel-head {
+    display: flex; align-items: center; gap: 9px;
+    padding: 11px 14px; border-bottom: 1px solid var(--line);
+    font-family: var(--mono); font-size: 11.5px; color: var(--fg-faint); letter-spacing: .08em;
+  }
+  .panel-head .b { width: 8px; height: 8px; border-radius: 50%; }
+  .panel-body { padding: 16px 14px 14px; }
+  .readout { display: flex; align-items: baseline; justify-content: space-between; font-family: var(--mono); font-size: 12px; padding: 7px 0; border-bottom: 1px dashed rgba(255,255,255,.06); }
+  .readout:last-of-type { border-bottom: 0; }
+  .readout .k { color: var(--fg-faint); letter-spacing: .06em; }
+  .readout .v { color: var(--phos); }
+  .readout .v.warn { color: var(--amber); }
+  .readout .v.info { color: var(--cyan); }
+  #spark { display: block; width: 100%; height: 74px; margin-top: 10px; }
+
+  /* ---------- 指标条 ---------- */
+  .strip { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 3px; overflow: hidden; }
+  .cell { background: var(--bg-raise); padding: 26px 22px; transition: background .3s; }
+  .cell:hover { background: #0f151a; }
+  .cell .num { font-family: var(--mono); font-size: clamp(26px, 3.4vw, 40px); color: var(--fg); line-height: 1; letter-spacing: -.02em; }
+  .cell .num em { font-style: normal; color: var(--phos); font-size: .55em; margin-left: 4px; }
+  .cell .cap { font-family: var(--mono); font-size: 11.5px; color: var(--fg-faint); letter-spacing: .1em; margin-top: 12px; text-transform: uppercase; }
+  .cell .sub { font-size: 13px; color: var(--fg-dim); margin-top: 7px; }
+
+  /* ---------- 能力矩阵 ---------- */
+  .caps { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 3px; overflow: hidden; }
+  .cap { background: var(--bg-raise); padding: 30px 26px 26px; position: relative; transition: background .3s; }
+  .cap:hover { background: #0f151a; }
+  .cap::before { content: ""; position: absolute; left: 0; top: 0; width: 100%; height: 1px; background: linear-gradient(90deg, var(--accent,var(--phos)), transparent); transform: scaleX(0); transform-origin: left; transition: transform .5s cubic-bezier(.2,.7,.3,1); }
+  .cap:hover::before { transform: scaleX(1); }
+  .cap h3 { font-size: 15px; margin: 0 0 4px; font-weight: 600; letter-spacing: -.01em; }
+  .cap .idx { font-family: var(--mono); font-size: 11px; color: var(--accent,var(--phos)); letter-spacing: .16em; }
+  .cap ul { list-style: none; margin: 16px 0 0; padding: 0; }
+  .cap li { font-family: var(--mono); font-size: 12.5px; color: var(--fg-dim); padding: 5px 0 5px 15px; position: relative; }
+  .cap li::before { content: "›"; position: absolute; left: 0; color: var(--accent,var(--phos)); opacity: .7; }
+
+  /* ---------- 作品 ---------- */
+  .work { border-top: 1px solid var(--line); padding: 40px 0; display: grid; grid-template-columns: 82px minmax(0,1fr) minmax(0,.85fr); gap: clamp(18px, 3vw, 44px); position: relative; transition: background .35s; }
+  .work:last-child { border-bottom: 1px solid var(--line); }
+  .work:hover { background: rgba(255,255,255,.014); }
+  .work .no { font-family: var(--mono); font-size: 12px; color: var(--fg-faint); letter-spacing: .14em; padding-top: 6px; }
+  .work h3 { margin: 0 0 8px; font-size: clamp(20px, 2.5vw, 27px); letter-spacing: -.02em; font-weight: 600; }
+  .work h3 .lang { font-family: var(--mono); font-size: 11px; color: var(--cyan); border: 1px solid rgba(92,225,230,.3); padding: 2px 7px; border-radius: 2px; margin-left: 12px; vertical-align: 3px; letter-spacing: .1em; }
+  .work p { color: var(--fg-dim); margin: 0 0 16px; max-width: 54ch; }
+  .tags { display: flex; flex-wrap: wrap; gap: 7px; }
+  .tag { font-family: var(--mono); font-size: 11.5px; color: var(--fg-dim); border: 1px solid var(--line); padding: 4px 9px; border-radius: 2px; }
+  .facts { font-family: var(--mono); font-size: 12.5px; color: var(--fg-faint); }
+  .facts div { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px dashed rgba(255,255,255,.06); }
+  .facts div span:last-child { color: var(--phos); }
+  .golink { display: inline-flex; align-items: center; gap: 8px; margin-top: 18px; font-family: var(--mono); font-size: 12.5px; color: var(--phos); border-bottom: 1px solid rgba(124,255,178,.3); padding-bottom: 2px; }
+  .golink:hover { border-color: var(--phos); }
+  .golink span { transition: transform .3s; }
+  .golink:hover span { transform: translateX(4px); }
+
+  /* ---------- 关于 ---------- */
+  .about { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: clamp(28px, 5vw, 72px); }
+  .about p { color: var(--fg-dim); margin: 0 0 18px; }
+  .about p b { color: var(--fg); font-weight: 600; }
+  .kv { font-family: var(--mono); font-size: 12.5px; }
+  .kv div { display: flex; gap: 16px; padding: 9px 0; border-bottom: 1px dashed rgba(255,255,255,.06); }
+  .kv .k { color: var(--fg-faint); min-width: 96px; letter-spacing: .06em; }
+
+  /* ---------- 联系 ---------- */
+  .contact { text-align: center; padding-bottom: 90px; }
+  .contact h2 { font-size: clamp(30px, 5.4vw, 62px); margin: 0 0 18px; letter-spacing: -.035em; font-weight: 700; }
+  .contact .mail { font-family: var(--mono); font-size: clamp(14px, 2vw, 18px); color: var(--phos); border-bottom: 1px solid rgba(124,255,178,.32); padding-bottom: 3px; }
+  .contact .mail:hover { border-color: var(--phos); }
+  .contact .row { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 34px; }
+
+  footer { border-top: 1px solid var(--line); padding: 26px 0 34px; font-family: var(--mono); font-size: 11.5px; color: var(--fg-faint); }
+  footer .shell { display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; }
+
+  /* ---------- 入场 ---------- */
+  [data-js="on"] .reveal { opacity: 0; transform: translateY(16px); }
+  [data-js="on"] .reveal.in { opacity: 1; transform: none; transition: opacity .8s cubic-bezier(.2,.7,.3,1), transform .8s cubic-bezier(.2,.7,.3,1); }
+
+  /* ---------- 响应式 ---------- */
+  @media (max-width: 1040px) {
+    .hero-grid { grid-template-columns: minmax(0,1fr); }
+    .caps { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .strip { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .about { grid-template-columns: minmax(0,1fr); }
+    .work { grid-template-columns: 56px minmax(0,1fr); }
+    .work .facts { grid-column: 2; }
+  }
+  @media (max-width: 620px) {
+    .caps, .strip { grid-template-columns: minmax(0,1fr); }
+    .work { grid-template-columns: minmax(0,1fr); }
+    .work .no { padding-top: 0; }
+    .work .facts { grid-column: 1; }
+    .topbar .hide-sm { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
+    [data-js="on"] .reveal { opacity: 1; transform: none; }
+  }
+  :focus-visible { outline: 2px solid var(--phos); outline-offset: 3px; }
+</style>
+</head>
+<body>
+
+<canvas id="field" aria-hidden="true"></canvas>
+<div class="grid" aria-hidden="true"></div>
+<div class="scan" aria-hidden="true"></div>
+<div class="vig" aria-hidden="true"></div>
+
+<header class="topbar">
+  <span class="dot" aria-hidden="true"></span>
+  <span>SYSTEM ONLINE</span>
+  <span class="sep hide-sm">│</span>
+  <span class="hide-sm" id="stamp">--:--:-- CST</span>
+  <span class="right">
+    <a href="#works">WORKS</a>
+    <a href="https://github.com/accdmm" target="_blank" rel="noopener">GITHUB</a>
+    <a href="mailto:3414724907@qq.com">MAIL</a>
+  </span>
+</header>
+<div class="bar" id="bar" aria-hidden="true"></div>
+
+<div class="wrap">
+
+  <div class="shell">
+    <section class="hero" id="top">
+      <div class="hero-grid">
+        <div>
+          <p class="eyebrow reveal"><span aria-hidden="true">◆</span> BACKEND ENGINEER · 2027</p>
+          <h1 class="name reveal">
+            <span class="zh">李梦豪</span>
+            <span class="en">JAVA BACKEND DEVELOPER</span>
+          </h1>
+          <p class="role reveal" id="role">Java 后端开发工程师<span class="caret" aria-hidden="true"></span></p>
+          <p class="lede reveal">
+            把 <b>性能层与正确性层的职责分清</b>，把 <b>失败路径</b> 设计清楚 ——
+            这是我在每个项目里反复练的事。秒杀链路里 Redis 只负责快速失败，数据库的条件扣减才是最终裁决。
+          </p>
+          <div class="cta reveal">
+            <a class="btn primary" href="#works">查看项目 →</a>
+            <a class="btn" href="mailto:3414724907@qq.com">发邮件</a>
+            <a class="btn" href="https://github.com/accdmm" target="_blank" rel="noopener">GitHub</a>
+          </div>
+        </div>
+
+        <div class="panel reveal" aria-label="运行状态面板">
+          <div class="panel-head">
+            <span class="b" style="background:var(--rose)"></span>
+            <span class="b" style="background:var(--amber)"></span>
+            <span class="b" style="background:var(--phos)"></span>
+            <span style="margin-left:8px">runtime · monitor</span>
+          </div>
+          <div class="panel-body">
+            <div class="readout"><span class="k">concurrency</span><span class="v">sequential-safe</span></div>
+            <div class="readout"><span class="k">cache layer</span><span class="v">caffeine + redis</span></div>
+            <div class="readout"><span class="k">mq</span><span class="v info">kafka / rabbitmq</span></div>
+            <div class="readout"><span class="k">sharding</span><span class="v">spheres 5.3</span></div>
+            <div class="readout"><span class="k">ai stack</span><span class="v info">spring ai</span></div>
+            <div class="readout"><span class="k">modules compiled</span><span class="v warn">21 / 28 · OK</span></div>
+            <canvas id="spark" aria-hidden="true"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section aria-label="规模指标" style="padding-top:0">
+      <div class="strip reveal">
+        <div class="cell">
+          <div class="num" data-count="21">21<em>mod</em></div>
+          <div class="cap">Shop-pick</div>
+          <div class="sub">模块编译通过</div>
+        </div>
+        <div class="cell">
+          <div class="num" data-count="28">28<em>mod</em></div>
+          <div class="cap">Knowpath</div>
+          <div class="sub">模块编译通过</div>
+        </div>
+        <div class="cell">
+          <div class="num" data-count="1029">1029<em>files</em></div>
+          <div class="cap">Single commit</div>
+          <div class="sub">单次提交入库</div>
+        </div>
+        <div class="cell">
+          <div class="num" data-count="17">17<em>svc</em></div>
+          <div class="cap">Microservices</div>
+          <div class="sub">业务域拆分</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="caps">
+      <h2 class="slabel">01 / 能力矩阵 · capability</h2>
+      <div class="caps reveal">
+        <div class="cap" style="--accent:var(--phos)">
+          <div class="idx">01</div>
+          <h3>并发与一致性</h3>
+          <ul>
+            <li>Lua 脚本原子扣减（四重校验）</li>
+            <li>一人一单 · 幂等与防重</li>
+            <li>分布式锁（读写 / 公平 / 可重入）</li>
+            <li>扣减对账与回滚闭环</li>
+          </ul>
+        </div>
+        <div class="cap" style="--accent:var(--amber)">
+          <div class="idx">02</div>
+          <h3>中间件与消息</h3>
+          <ul>
+            <li>Redis 多级缓存 / 限流</li>
+            <li>Kafka 幂等生产 · 手动 ack</li>
+            <li>Redisson · RabbitMQ 延迟消息</li>
+            <li>Elasticsearch 检索与向量</li>
+          </ul>
+        </div>
+        <div class="cap" style="--accent:var(--cyan)">
+          <div class="idx">03</div>
+          <h3>数据层</h3>
+          <ul>
+            <li>MySQL 索引 · MVCC · 慢查询</li>
+            <li>ShardingSphere 分库分表</li>
+            <li>订单路由表设计</li>
+            <li>雪花算法全局 ID</li>
+          </ul>
+        </div>
+        <div class="cap" style="--accent:var(--cyan)">
+          <div class="idx">04</div>
+          <h3>AI 工程化</h3>
+          <ul>
+            <li>Spring AI · 多 Agent 路由</li>
+            <li>Tool Calling 与结构化结果回传</li>
+            <li>向量 RAG 检索增强</li>
+            <li>SSE 流式输出</li>
+          </ul>
+        </div>
+        <div class="cap" style="--accent:var(--phos)">
+          <div class="idx">05</div>
+          <h3>框架与微服务</h3>
+          <ul>
+            <li>Spring Boot 3 · Spring Cloud Alibaba</li>
+            <li>Nacos 注册与配置中心</li>
+            <li>MyBatis-Plus · Knife4j</li>
+            <li>网关鉴权与统一响应</li>
+          </ul>
+        </div>
+        <div class="cap" style="--accent:var(--amber)">
+          <div class="idx">06</div>
+          <h3>工程化</h3>
+          <ul>
+            <li>Git 流程与提交规范</li>
+            <li>Maven 多模块构建</li>
+            <li>Docker 容器化与脚本</li>
+            <li>Linux 部署与排障</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="works">
+      <h2 class="slabel">02 / 代表项目 · selected works</h2>
+
+      <article class="work reveal">
+        <div class="no">W.01</div>
+        <div>
+          <h3>shop-pick <span class="lang">JAVA</span></h3>
+          <p>探店场景的高并发优惠券秒杀平台。围绕「高并发抢购」这一核心场景，解决库存超卖、缓存穿透与击穿、消息可靠性，以及 Redis 与数据库的一致性闭环。</p>
+          <div class="tags">
+            <span class="tag">Lua 原子扣减</span>
+            <span class="tag">分层防超卖</span>
+            <span class="tag">Kafka 削峰</span>
+            <span class="tag">对账闭环</span>
+            <span class="tag">ShardingSphere</span>
+            <span class="tag">令牌桶限流</span>
+          </div>
+          <a class="golink" href="https://github.com/accdmm/shop-pick" target="_blank" rel="noopener">查看仓库 <span aria-hidden="true">→</span></a>
+        </div>
+        <div class="facts">
+          <div><span>模块</span><span>21</span></div>
+          <div><span>入库文件</span><span>422</span></div>
+          <div><span>分层</span><span>Redis / DB</span></div>
+          <div><span>构建</span><span>BUILD SUCCESS</span></div>
+        </div>
+      </article>
+
+      <article class="work reveal">
+        <div class="no">W.02</div>
+        <div>
+          <h3>knowpath <span class="lang">JAVA</span></h3>
+          <p>在线学习平台的微服务实现，并内置基于 Spring AI 的 AI 智能客服模块：多 Agent 可插拔路由、业务工具调用与结构化结果回传、Elasticsearch 向量 RAG、SSE 流式输出。</p>
+          <div class="tags">
+            <span class="tag">17 个微服务</span>
+            <span class="tag">Spring Cloud Alibaba</span>
+            <span class="tag">Spring AI</span>
+            <span class="tag">多 Agent 路由</span>
+            <span class="tag">Tool Calling</span>
+            <span class="tag">向量 RAG</span>
+            <span class="tag">SSE</span>
+          </div>
+          <a class="golink" href="https://github.com/accdmm/knowpath" target="_blank" rel="noopener">查看仓库 <span aria-hidden="true">→</span></a>
+        </div>
+        <div class="facts">
+          <div><span>模块</span><span>28</span></div>
+          <div><span>入库文件</span><span>1029</span></div>
+          <div><span>业务域</span><span>17</span></div>
+          <div><span>构建</span><span>BUILD SUCCESS</span></div>
+        </div>
+      </article>
+
+      <article class="work reveal">
+        <div class="no">W.03</div>
+        <div>
+          <h3>edu-ai-path-master <span class="lang">JAVA / TS</span></h3>
+          <p>智能学习平台：在线考试、视频学习与 AI 助手（LangChain4j + DashScope / Kimi），覆盖从课程内容到练习反馈的完整学习路径。</p>
+          <div class="tags">
+            <span class="tag">Spring Boot</span>
+            <span class="tag">Vue 3</span>
+            <span class="tag">LangChain4j</span>
+            <span class="tag">在线考试</span>
+            <span class="tag">DashScope</span>
+          </div>
+          <a class="golink" href="https://github.com/accdmm/edu-ai-path-master" target="_blank" rel="noopener">查看仓库 <span aria-hidden="true">→</span></a>
+        </div>
+        <div class="facts">
+          <div><span>形态</span><span>前后端一体</span></div>
+          <div><span>方向</span><span>AI 教育</span></div>
+          <div><span>状态</span><span>持续迭代</span></div>
+        </div>
+      </article>
+    </section>
+
+    <section id="about">
+      <h2 class="slabel">03 / 关于我 · profile</h2>
+      <div class="about">
+        <div class="reveal">
+          <p>做后端，我的习惯是<b>先分清哪一层负责性能、哪一层负责正确性</b>，再谈优化。秒杀项目里 Redis 只做快速失败、数据库的条件扣减才是最终裁决 —— 去掉那个条件，才会真的超卖。</p>
+          <p>做 AI 应用，<b>不满足于把接口调通</b>。我关心工具调用的失败路径、结构化结果怎么回到前端、会话记忆的边界在哪里。这些才是"能上线"和"能演示"的区别。</p>
+          <p>目前正在准备 2026 年秋招，方向是 Java 后端开发。</p>
+        </div>
+        <div class="kv reveal">
+          <div><span class="k">姓名</span><span>李梦豪</span></div>
+          <div><span class="k">学校</span><span>福州理工学院 · 软件工程</span></div>
+          <div><span class="k">毕业</span><span>2027 年 06 月</span></div>
+          <div><span class="k">GPA</span><span>3.8 / 4.0（专业前 10%）</span></div>
+          <div><span class="k">求职</span><span>Java 后端开发工程师</span></div>
+          <div><span class="k">城市</span><span>福州 / 广州 / 深圳</span></div>
+          <div><span class="k">邮箱</span><span>3414724907@qq.com</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="contact" id="contact">
+      <h2 class="reveal">聊聊机会？</h2>
+      <p class="reveal" style="color:var(--fg-dim);margin:0 0 26px">简历可随时索取，项目代码全部公开。</p>
+      <a class="mail reveal" href="mailto:3414724907@qq.com">3414724907@qq.com</a>
+      <div class="row reveal">
+        <a class="btn" href="https://github.com/accdmm" target="_blank" rel="noopener">GitHub</a>
+        <a class="btn" href="https://github.com/accdmm/shop-pick" target="_blank" rel="noopener">shop-pick</a>
+        <a class="btn" href="https://github.com/accdmm/knowpath" target="_blank" rel="noopener">knowpath</a>
+      </div>
+    </section>
+  </div>
+
+  <footer>
+    <div class="shell">
+      <span>© 2026 李梦豪 · 福州</span>
+      <span>纯 HTML / CSS / JS 手写 · 零框架 · 零外部请求</span>
+    </div>
+  </footer>
+</div>
+
+<script>
+(function () {
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- 顶部时间 ---------- */
+  var stamp = document.getElementById('stamp');
+  function tick() {
+    if (!stamp) return;
+    var d = new Date();
+    var p = function (n) { return String(n).padStart(2, '0'); };
+    stamp.textContent = p(d.getHours()) + ':' + p(d.getMinutes()) + ':' + p(d.getSeconds()) + ' CST';
+  }
+  tick(); setInterval(tick, 1000);
+
+  /* ---------- 滚动进度 ---------- */
+  var bar = document.getElementById('bar');
+  function onScroll() {
+    var h = document.documentElement.scrollHeight - window.innerHeight;
+    bar.style.width = (h > 0 ? (window.scrollY / h) * 100 : 0) + '%';
+  }
+  onScroll();
+  window.addEventListener('scroll', onScroll, { passive: true });
+
+  /* ---------- 入场 ---------- */
+  var reveals = [].slice.call(document.querySelectorAll('.reveal'));
+  if ('IntersectionObserver' in window && !reduced) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e, i) {
+        if (e.isIntersecting) {
+          var el = e.target;
+          setTimeout(function () { el.classList.add('in'); }, Math.min(i * 70, 280));
+          io.unobserve(el);
+        }
+      });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+    reveals.forEach(function (el) { io.observe(el); });
+    /* 兜底：任何情况下 2.5s 后全部显形，避免内容被隐藏 */
+    setTimeout(function () { reveals.forEach(function (el) { el.classList.add('in'); }); }, 2500);
+  } else {
+    reveals.forEach(function (el) { el.classList.add('in'); });
+  }
+
+  /* ---------- 数值滚动 ---------- */
+  if (!reduced) {
+    [].slice.call(document.querySelectorAll('[data-count]')).forEach(function (el) {
+      var target = parseInt(el.getAttribute('data-count'), 10);
+      var suffix = /<em>[\s\S]*<\/em>/.exec(el.innerHTML);
+      var seen = false;
+      var run = function () {
+        var t0 = performance.now(), dur = 1100;
+        (function step(now) {
+          var k = Math.min((now - t0) / dur, 1);
+          var eased = 1 - Math.pow(1 - k, 3);
+          el.innerHTML = Math.round(target * eased) + (suffix ? suffix[0] : '');
+          if (k < 1) requestAnimationFrame(step);
+        })(t0);
+      };
+      if ('IntersectionObserver' in window) {
+        var o = new IntersectionObserver(function (es) {
+          es.forEach(function (e) { if (e.isIntersecting && !seen) { seen = true; run(); o.disconnect(); } });
+        }, { threshold: 0.4 });
+        o.observe(el);
+      } else { run(); }
+    });
+  }
+
+  /* ---------- 打字机 ---------- */
+  var roleEl = document.getElementById('role');
+  if (roleEl) {
+    var text = roleEl.textContent.replace(/\s*$/, '');
+    var caret = '<span class="caret" aria-hidden="true"></span>';
+    if (reduced) {
+      roleEl.innerHTML = text + caret;
+    } else {
+      var i = 0;
+      roleEl.innerHTML = caret;
+      (function type() {
+        roleEl.innerHTML = text.slice(0, i) + caret;
+        if (i++ < text.length) setTimeout(type, 62);
+      })();
+    }
+  }
+
+  /* ---------- 粒子场 ---------- */
+  var cv = document.getElementById('field');
+  if (cv && cv.getContext) {
+    var ctx = cv.getContext('2d');
+    var nodes = [], dpr = 1, W = 0, H = 0, raf = null;
+
+    function size() {
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      W = window.innerWidth; H = window.innerHeight;
+      cv.width = Math.floor(W * dpr); cv.height = Math.floor(H * dpr);
+      cv.style.width = W + 'px'; cv.style.height = H + 'px';
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      var n = Math.max(26, Math.min(64, Math.round(W * H / 26000)));
+      nodes = [];
+      for (var i = 0; i < n; i++) {
+        nodes.push({
+          x: Math.random() * W, y: Math.random() * H,
+          vx: (Math.random() - 0.5) * 0.18, vy: (Math.random() - 0.5) * 0.18,
+          r: Math.random() * 1.5 + 0.6
+        });
+      }
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+      var linkDist = 150;
+      for (var i = 0; i < nodes.length; i++) {
+        var a = nodes[i];
+        if (!reduced) { a.x += a.vx; a.y += a.vy; }
+        if (a.x < -40) a.x = W + 40; if (a.x > W + 40) a.x = -40;
+        if (a.y < -40) a.y = H + 40; if (a.y > H + 40) a.y = -40;
+
+        for (var j = i + 1; j < nodes.length; j++) {
+          var b = nodes[j];
+          var dx = a.x - b.x, dy = a.y - b.y;
+          var d2 = dx * dx + dy * dy;
+          if (d2 < linkDist * linkDist) {
+            var o = (1 - Math.sqrt(d2) / linkDist) * 0.16;
+            ctx.strokeStyle = 'rgba(124,255,178,' + o.toFixed(3) + ')';
+            ctx.lineWidth = 0.6;
+            ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+          }
+        }
+        ctx.fillStyle = 'rgba(124,255,178,0.42)';
+        ctx.beginPath(); ctx.arc(a.x, a.y, a.r, 0, Math.PI * 2); ctx.fill();
+      }
+      if (!reduced) raf = requestAnimationFrame(draw);
+    }
+
+    size(); draw();
+    var rt;
+    window.addEventListener('resize', function () {
+      clearTimeout(rt);
+      rt = setTimeout(function () {
+        if (raf) cancelAnimationFrame(raf);
+        size(); draw();
+      }, 220);
+    });
+  }
+
+  /* ---------- 脉冲波形 ---------- */
+  var sp = document.getElementById('spark');
+  if (sp && sp.getContext) {
+    var sctx = sp.getContext('2d'), pts = [], t = 0, sraf = null;
+    function sparkSize() {
+      var d = Math.min(window.devicePixelRatio || 1, 2);
+      var w = sp.clientWidth || 320, h = 74;
+      sp.width = Math.floor(w * d); sp.height = Math.floor(h * d);
+      sctx.setTransform(d, 0, 0, d, 0, 0);
+      return { w: w, h: h };
+    }
+    var dim = sparkSize();
+    for (var k = 0; k < 64; k++) pts.push(0.5);
+
+    function sparkDraw() {
+      var w = dim.w, h = dim.h;
+      sctx.clearRect(0, 0, w, h);
+      sctx.strokeStyle = 'rgba(255,255,255,.06)';
+      sctx.lineWidth = 1;
+      for (var g = 1; g < 4; g++) {
+        sctx.beginPath(); sctx.moveTo(0, h * g / 4); sctx.lineTo(w, h * g / 4); sctx.stroke();
+      }
+      pts.shift();
+      var base = 0.5 + Math.sin(t * 0.06) * 0.12;
+      var spike = (Math.random() < 0.07) ? (Math.random() * 0.42) : 0;
+      pts.push(Math.max(0.06, Math.min(0.94, base + (Math.random() - 0.5) * 0.14 + spike)));
+
+      sctx.beginPath();
+      for (var i = 0; i < pts.length; i++) {
+        var x = (i / (pts.length - 1)) * w;
+        var y = h - pts[i] * h;
+        if (i === 0) sctx.moveTo(x, y); else sctx.lineTo(x, y);
+      }
+      sctx.strokeStyle = 'rgba(124,255,178,.9)';
+      sctx.lineWidth = 1.4;
+      sctx.stroke();
+
+      var lastY = h - pts[pts.length - 1] * h;
+      sctx.fillStyle = 'rgba(124,255,178,1)';
+      sctx.beginPath(); sctx.arc(w - 1.5, lastY, 2.2, 0, Math.PI * 2); sctx.fill();
+
+      t++;
+      if (!reduced) sraf = requestAnimationFrame(sparkDraw);
+    }
+    sparkDraw();
+    window.addEventListener('resize', function () { dim = sparkSize(); if (!reduced) sparkDraw(); });
+  }
+})();
+</script>
+</body>
+</html>
