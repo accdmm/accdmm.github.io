@@ -275,7 +275,7 @@
   .golink span { transition: transform var(--mid) var(--ease); }
   .golink:hover span { transform: translateX(5px); }
 
-  .prac { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 3px; overflow: hidden; }
+  .prac { display: grid; grid-template-columns: repeat(auto-fit, minmax(186px, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 3px; overflow: hidden; }
   .tool { background: var(--bg-raise); padding: 22px 20px; }
   .tool .n { font-family: var(--mono); font-size: 11px; color: var(--fg-faint); letter-spacing: .14em; }
   .tool h4 { margin: 8px 0 8px; font-size: 14.5px; font-weight: 600; }
@@ -290,13 +290,14 @@
   .about { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: clamp(28px, 5vw, 72px); margin-top: 36px; }
   .about p { color: var(--fg-dim); margin: 0 0 18px; }
   .about p b { color: var(--fg); font-weight: 600; }
-  .quote { border-left: 2px solid var(--phos); padding: 4px 0 4px 18px; margin: 26px 0 0; font-family: var(--mono); font-size: 13.5px; color: var(--fg); }
   .kv { font-family: var(--mono); font-size: 12.5px; }
   .kv div { display: flex; gap: 16px; padding: 9px 0; border-bottom: 1px dashed rgba(255,255,255,.06); }
   .kv .k { color: var(--fg-faint); min-width: 96px; letter-spacing: .06em; }
 
   .contact { text-align: center; padding-bottom: 80px; }
-  .contact h2 { font-size: clamp(30px, 5.4vw, 62px); margin: 0 0 18px; letter-spacing: -.035em; font-weight: 700; }
+  .contact .stitle { text-align: center; }
+  .contact .slabel { justify-content: center; }
+  .contact .slabel::after { display: none; }
   .contact .mail { font-family: var(--mono); font-size: clamp(14px, 2vw, 18px); color: var(--phos); border-bottom: 1px solid rgba(124,255,178,.32); padding-bottom: 3px; transition: border-color var(--fast) linear; }
   .contact .mail:hover { border-color: var(--phos); }
   .contact .row { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 32px; }
@@ -325,7 +326,6 @@
   @media (max-width: 1100px) {
     .hero-grid { grid-template-columns: minmax(0,1fr); }
     .caps { grid-template-columns: repeat(2, minmax(0,1fr)); }
-    .prac { grid-template-columns: repeat(2, minmax(0,1fr)); }
     .flow { grid-template-columns: repeat(2, minmax(0,1fr)); }
     .strip { grid-template-columns: repeat(2, minmax(0,1fr)); }
     .about { grid-template-columns: minmax(0,1fr); }
@@ -368,7 +368,7 @@
     <a class="navlink" href="#problems">问题</a>
     <a class="navlink" href="#works">项目</a>
     <a class="navlink" href="#practice">工程</a>
-    <a class="navlink hide-sm" href="#about">关于</a>
+    <a class="navlink hide-sm" href="#about">背景</a>
     <a class="navlink" href="#contact">联系</a>
   </nav>
 </header>
@@ -389,8 +389,8 @@
           </h1>
           <p class="role reveal" id="role">Java 后端开发工程师<span class="caret" aria-hidden="true"></span></p>
           <p class="lede reveal">
-            把 <b>性能层与正确性层的职责分清</b>，把 <b>失败路径</b> 设计清楚 ——
-            这是我在每个项目里反复练的事。秒杀链路里 Redis 只负责快速失败，数据库的条件扣减才是最终裁决。
+            秒杀链路的职责分层：Redis 负责快速失败，数据库条件扣减负责正确性；
+            一致性由 <b>回滚、对账、告警</b> 三层收敛。
           </p>
           <div class="cta reveal">
             <a class="btn primary magnetic" href="#works"><span>查看项目 →</span></a>
@@ -451,9 +451,9 @@
     </section>
 
     <section id="caps">
-      <h2 class="slabel reveal">01 / 能力矩阵 · capability</h2>
-      <p class="stitle reveal">能上手做什么</p>
-      <p class="sdesc reveal">每条都标了它真正被用在哪里 —— 不是罗列名词，是说明这些工具解决过什么问题。</p>
+      <h2 class="slabel reveal">01 / CAPABILITY</h2>
+      <p class="stitle reveal">能力矩阵</p>
+      <p class="sdesc reveal">按技术方向分组；每条标注它实际被用在哪个项目。</p>
 
       <div class="caps">
         <div class="cap tilt reveal" style="--accent:var(--phos)">
@@ -532,9 +532,9 @@
     </section>
 
     <section id="problems">
-      <h2 class="slabel reveal">02 / 我解决过的问题 · problems</h2>
-      <p class="stitle reveal">真正花时间的地方</p>
-      <p class="sdesc reveal">写代码的时间远少于想清楚边界的时间。下面这些是我在项目里实际踩过、并且给出了方案的坑。</p>
+      <h2 class="slabel reveal">02 / PROBLEMS</h2>
+      <p class="stitle reveal">问题与处理</p>
+      <p class="sdesc reveal">两个项目实现中出现的 6 个具体问题，以及对应的处理方案。</p>
 
       <div class="probs">
         <div class="prob tilt reveal">
@@ -571,9 +571,9 @@
     </section>
 
     <section id="works">
-      <h2 class="slabel reveal">03 / 代表项目 · selected works</h2>
-      <p class="stitle reveal">三个能点开看的仓库</p>
-      <p class="sdesc reveal">每个仓库的 README 都写了业务场景、设计取舍与已知限制 —— 包括没做好的部分。</p>
+      <h2 class="slabel reveal">03 / WORKS</h2>
+      <p class="stitle reveal">代表项目</p>
+      <p class="sdesc reveal">三个公开仓库及其关键实现与构建数据。</p>
 
       <article class="work reveal">
         <div class="no">W.01</div>
@@ -659,9 +659,9 @@
     </section>
 
     <section id="practice">
-      <h2 class="slabel reveal">04 / 工程实践 · practice</h2>
-      <p class="stitle reveal">交付一个项目，不只是写完代码</p>
-      <p class="sdesc reveal">从「本地能跑」到「别人也能跑」，中间这部分我当成项目的一部分来做。</p>
+      <h2 class="slabel reveal">04 / PRACTICE</h2>
+      <p class="stitle reveal">工程实践</p>
+      <p class="sdesc reveal">构建、提交、配置、部署四个环节，以及一条外部依赖取舍。</p>
 
       <div class="prac reveal">
         <div class="tool">
@@ -683,6 +683,11 @@
           <div class="n">T.04</div>
           <h4>部署与排障</h4>
           <p>Dockerfile + 启动脚本做容器化；日志分层、关键链路埋点，先能定位再谈优化。</p>
+        </div>
+        <div class="tool">
+          <div class="n">T.05</div>
+          <h4>外部依赖</h4>
+          <p>图形与动效全部自建，不引用第三方图片服务；访问者网络受限时不会出现加载失败导致的破图。</p>
         </div>
       </div>
 
@@ -716,14 +721,13 @@
     </section>
 
     <section id="about">
-      <h2 class="slabel reveal">05 / 关于我 · profile</h2>
-      <p class="stitle reveal">我是怎么想的</p>
+      <h2 class="slabel reveal">05 / PROFILE</h2>
+      <p class="stitle reveal">背景</p>
+      <p class="sdesc reveal">教育经历、求职意向与联系方式。</p>
       <div class="about">
         <div class="reveal">
-          <p>做后端，我的习惯是<b>先分清哪一层负责性能、哪一层负责正确性</b>，再谈优化。秒杀项目里 Redis 只做快速失败、数据库的条件扣减才是最终裁决 —— 去掉那个条件，才会真的超卖。</p>
-          <p>做 AI 应用，<b>不满足于把接口调通</b>。我关心工具调用的失败路径、结构化结果怎么回到前端、会话记忆的边界在哪里。这些才是「能上线」和「能演示」的区别。</p>
-          <p>目前正在准备 2026 年秋招，方向是 Java 后端开发。</p>
-          <p class="quote">宁可写「这里有个边界，下一步我会这样改」，也不写「已经完美解决」。</p>
+          <p>一致性设计上，<b>性能层与正确性层分开</b>：Redis 负责快速失败，数据库条件扣减负责正确性；失败路径先于成功路径定义，由回滚、对账、告警三层收敛。</p>
+          <p>AI 应用上，工具调用按服务维度做故障隔离，单个工具不可用不阻断整体问答；结构化结果经暂存后在流尾下发，不塞进文本流。</p>
         </div>
         <div class="kv reveal d1">
           <div><span class="k">姓名</span><span>李梦豪</span></div>
@@ -732,6 +736,7 @@
           <div><span class="k">GPA</span><span>3.8 / 4.0（专业前 10%）</span></div>
           <div><span class="k">求职</span><span>Java 后端开发工程师</span></div>
           <div><span class="k">城市</span><span>福州 / 广州 / 深圳</span></div>
+          <div><span class="k">状态</span><span>2026 秋招进行中</span></div>
           <div><span class="k">邮箱</span><span>3414724907@qq.com</span></div>
           <div><span class="k">主页</span><span>accdmm.github.io</span></div>
         </div>
@@ -739,7 +744,8 @@
     </section>
 
     <section class="contact" id="contact">
-      <h2 class="reveal">聊聊机会？</h2>
+      <p class="slabel reveal">06 / CONTACT</p>
+      <h2 class="stitle reveal">联系方式</h2>
       <p class="reveal" style="color:var(--fg-dim);margin:0 0 26px">简历可随时索取，项目代码全部公开。</p>
       <a class="mail reveal" href="mailto:3414724907@qq.com">3414724907@qq.com</a>
       <div class="row reveal">
@@ -753,7 +759,7 @@
   <footer>
     <div class="shell">
       <span>© 2026 李梦豪 · 福州</span>
-      <span class="meta">纯 HTML / CSS / JS 手写 · 零框架 · 零外部请求 · <span id="lu">—</span></span>
+      <span class="meta"><span id="lu">—</span></span>
     </div>
   </footer>
 </div>
@@ -814,7 +820,7 @@
 
   /* ---------- 区块指示器 + 顶栏高亮 ---------- */
   var secIds = ['caps', 'problems', 'works', 'practice', 'about', 'contact'];
-  var labels = { caps: '能力矩阵', problems: '问题', works: '项目', practice: '工程实践', about: '关于', contact: '联系' };
+  var labels = { caps: '能力矩阵', problems: '问题与处理', works: '代表项目', practice: '工程实践', about: '背景', contact: '联系方式' };
   var rail = $('#rail');
   secIds.forEach(function (id) {
     var b = document.createElement('button');
