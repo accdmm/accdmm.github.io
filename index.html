@@ -29,25 +29,21 @@
 
     --pad: clamp(20px, 5vw, 96px);
     --maxw: 1240px;
+    --ease: cubic-bezier(.2,.7,.3,1);
+    --fast: 160ms;
+    --mid: 260ms;
   }
 
   * { box-sizing: border-box; }
-  html { -webkit-text-size-adjust: 100%; }
+  html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; scroll-padding-top: 72px; }
   body {
-    margin: 0;
-    background: var(--bg);
-    color: var(--fg);
-    font-family: var(--sans);
-    font-size: 16px;
-    line-height: 1.7;
-    overflow-x: hidden;
-    -webkit-font-smoothing: antialiased;
+    margin: 0; background: var(--bg); color: var(--fg);
+    font-family: var(--sans); font-size: 16px; line-height: 1.7;
+    overflow-x: hidden; -webkit-font-smoothing: antialiased;
   }
-
   a { color: inherit; text-decoration: none; }
   ::selection { background: rgba(124,255,178,.26); color: #fff; }
 
-  /* ---------- 背景层 ---------- */
   #field { position: fixed; inset: 0; z-index: 0; display: block; }
   .grid {
     position: fixed; inset: 0; z-index: 1; pointer-events: none;
@@ -66,55 +62,82 @@
     position: fixed; inset: 0; z-index: 2; pointer-events: none;
     background: radial-gradient(ellipse 100% 70% at 50% 42%, transparent 40%, rgba(0,0,0,.62) 100%);
   }
+  .spot {
+    position: fixed; z-index: 3; pointer-events: none; width: 520px; height: 520px;
+    left: 0; top: 0; margin: -260px 0 0 -260px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(124,255,178,.09), transparent 66%);
+    transition: opacity .5s linear; opacity: 0;
+  }
 
-  /* ---------- 顶部状态条 ---------- */
   .topbar {
     position: fixed; top: 0; left: 0; right: 0; z-index: 30;
-    display: flex; align-items: center; gap: 18px;
-    height: 42px; padding: 0 var(--pad);
+    display: flex; align-items: center; gap: 16px;
+    height: 52px; padding: 0 var(--pad);
     border-bottom: 1px solid var(--line);
-    background: rgba(6,8,10,.74);
-    backdrop-filter: blur(14px);
-    font-family: var(--mono); font-size: 11.5px; color: var(--fg-dim);
-    letter-spacing: .06em;
+    background: rgba(6,8,10,.72); backdrop-filter: blur(14px);
+    font-family: var(--mono); font-size: 11.5px; color: var(--fg-dim); letter-spacing: .06em;
+    transition: transform var(--mid) var(--ease), background var(--mid) linear, border-color var(--mid) linear;
   }
+  .topbar.hidden { transform: translateY(-100%); }
+  .topbar.solid { background: rgba(6,8,10,.92); border-color: var(--line-str); }
   .topbar .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--phos); box-shadow: 0 0 10px var(--phos); animation: pulse 2.4s ease-in-out infinite; }
   .topbar .sep { color: var(--fg-faint); }
-  .topbar .right { margin-left: auto; display: flex; gap: 18px; }
-  .topbar a:hover { color: var(--phos); }
+  .topbar .right { margin-left: auto; display: flex; gap: 4px; }
+  .topbar .navlink {
+    padding: 6px 10px; border-radius: 2px; position: relative; color: var(--fg-dim);
+    transition: color var(--fast) linear, background var(--fast) linear;
+  }
+  .topbar .navlink::after {
+    content: ""; position: absolute; left: 10px; right: 10px; bottom: 2px; height: 1px;
+    background: var(--phos); transform: scaleX(0); transform-origin: left;
+    transition: transform var(--mid) var(--ease);
+  }
+  .topbar .navlink:hover { color: var(--fg); background: rgba(255,255,255,.04); }
+  .topbar .navlink:hover::after, .topbar .navlink.active::after { transform: scaleX(1); }
+  .topbar .navlink.active { color: var(--phos); }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.32} }
-  .bar { position: fixed; top: 42px; left: 0; height: 1px; background: var(--phos); z-index: 31; width: 0; box-shadow: 0 0 8px var(--phos); }
+  .bar { position: fixed; top: 52px; left: 0; height: 1px; background: var(--phos); z-index: 31; width: 0; box-shadow: 0 0 8px var(--phos); }
 
-  /* ---------- 布局 ---------- */
+  .rail { position: fixed; right: 22px; top: 50%; transform: translateY(-50%); z-index: 29; display: flex; flex-direction: column; gap: 14px; }
+  .rail button {
+    width: 9px; height: 9px; padding: 0; border-radius: 50%; cursor: pointer;
+    border: 1px solid var(--line-str); background: transparent; position: relative;
+    transition: border-color var(--fast) linear, background var(--fast) linear, transform var(--fast) var(--ease);
+  }
+  .rail button::after {
+    content: attr(data-label); position: absolute; right: 20px; top: 50%; transform: translateY(-50%) translateX(6px);
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: .08em; color: var(--fg-dim);
+    white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity var(--fast) linear, transform var(--fast) var(--ease);
+  }
+  .rail button:hover { transform: scale(1.35); border-color: var(--phos); }
+  .rail button:hover::after { opacity: 1; transform: translateY(-50%) translateX(0); }
+  .rail button.on { background: var(--phos); border-color: var(--phos); box-shadow: 0 0 10px rgba(124,255,178,.6); }
+
   .wrap { position: relative; z-index: 10; }
   .shell { max-width: var(--maxw); margin: 0 auto; padding: 0 var(--pad); }
-  section { padding: clamp(72px, 11vw, 150px) 0; }
+  section { padding: clamp(72px, 10vw, 138px) 0; }
 
   .slabel {
     display: flex; align-items: baseline; gap: 14px;
     font-family: var(--mono); font-size: 11.5px; letter-spacing: .22em;
-    color: var(--fg-faint); text-transform: uppercase;
-    margin: 0 0 40px;
+    color: var(--fg-faint); text-transform: uppercase; margin: 0 0 16px;
   }
   .slabel::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+  .stitle { font-size: clamp(24px, 3.4vw, 38px); letter-spacing: -.03em; font-weight: 700; margin: 0 0 10px; }
+  .sdesc { color: var(--fg-dim); margin: 0 0 44px; max-width: 62ch; }
 
-  /* ---------- Hero ---------- */
-  .hero { padding-top: clamp(120px, 17vw, 210px); }
+  .hero { padding-top: clamp(120px, 16vw, 200px); }
   .hero-grid { display: grid; grid-template-columns: minmax(0,1.15fr) minmax(0,.85fr); gap: clamp(32px, 5vw, 72px); align-items: center; }
 
   .eyebrow {
     display: inline-flex; align-items: center; gap: 10px;
     font-family: var(--mono); font-size: 11.5px; letter-spacing: .18em;
-    color: var(--phos); border: 1px solid rgba(124,255,178,.28);
-    background: rgba(124,255,178,.05);
+    color: var(--phos); border: 1px solid rgba(124,255,178,.28); background: rgba(124,255,178,.05);
     padding: 6px 13px; border-radius: 2px; margin-bottom: 26px;
   }
   h1.name {
-    font-family: var(--sans);
-    font-size: clamp(52px, 10.5vw, 128px);
-    line-height: .92; margin: 0 0 6px;
-    font-weight: 800; letter-spacing: -.045em;
-    text-shadow: 0 0 60px rgba(124,255,178,.14);
+    font-size: clamp(52px, 10.2vw, 124px); line-height: .92; margin: 0 0 6px;
+    font-weight: 800; letter-spacing: -.045em; text-shadow: 0 0 60px rgba(124,255,178,.14);
   }
   h1.name .zh { display: block; }
   h1.name .en {
@@ -122,32 +145,38 @@
     font-size: clamp(12px, 1.5vw, 15px); letter-spacing: .42em;
     color: var(--fg-faint); margin-top: 18px; text-shadow: none;
   }
-  .role {
-    font-family: var(--mono); font-size: clamp(14px, 1.9vw, 19px);
-    color: var(--fg); margin: 26px 0 0; min-height: 1.8em;
-  }
+  .role { font-family: var(--mono); font-size: clamp(14px, 1.9vw, 19px); color: var(--fg); margin: 26px 0 0; min-height: 1.8em; }
   .role .caret { display: inline-block; width: 9px; height: 1.05em; background: var(--phos); vertical-align: -3px; margin-left: 3px; animation: blink 1.05s steps(1,end) infinite; }
   @keyframes blink { 0%,49%{opacity:1} 50%,100%{opacity:0} }
 
   .lede { color: var(--fg-dim); max-width: 46ch; margin: 22px 0 0; }
   .lede b { color: var(--fg); font-weight: 600; }
 
-  .cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 38px; }
+  .cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 36px; }
   .btn {
+    position: relative; overflow: hidden;
     font-family: var(--mono); font-size: 12.5px; letter-spacing: .1em;
     padding: 13px 22px; border: 1px solid var(--line-str); border-radius: 2px;
     color: var(--fg); background: transparent; cursor: pointer;
-    transition: border-color .25s, color .25s, background .25s, transform .25s;
+    transition: border-color var(--fast) linear, color var(--fast) linear, background var(--fast) linear,
+                transform var(--mid) var(--ease), box-shadow var(--mid) var(--ease);
+    will-change: transform;
   }
-  .btn:hover { border-color: var(--phos); color: var(--phos); background: rgba(124,255,178,.06); transform: translateY(-2px); }
+  .btn span { position: relative; z-index: 1; }
+  .btn:hover { border-color: var(--phos); color: var(--phos); background: rgba(124,255,178,.06); box-shadow: 0 6px 26px -12px rgba(124,255,178,.7); }
   .btn.primary { border-color: var(--phos); color: #04140c; background: var(--phos); font-weight: 600; }
   .btn.primary:hover { background: #9dffc6; color: #04140c; }
+  .btn .ripple {
+    position: absolute; border-radius: 50%; transform: translate(-50%,-50%) scale(0);
+    background: rgba(124,255,178,.4); pointer-events: none; width: 12px; height: 12px;
+    animation: rip 560ms var(--ease) forwards;
+  }
+  .btn.primary .ripple { background: rgba(4,20,12,.28); }
+  @keyframes rip { to { transform: translate(-50%,-50%) scale(22); opacity: 0; } }
 
-  /* ---------- 仪表盘 ---------- */
   .panel {
-    border: 1px solid var(--line-str); border-radius: 3px;
+    border: 1px solid var(--line-str); border-radius: 3px; position: relative; overflow: hidden;
     background: linear-gradient(180deg, rgba(18,24,29,.92), rgba(9,12,15,.92));
-    position: relative; overflow: hidden;
   }
   .panel::before, .panel::after {
     content: ""; position: absolute; width: 11px; height: 11px; pointer-events: none;
@@ -156,100 +185,167 @@
   .panel::before { top: -1px; left: -1px; border-width: 1px 0 0 1px; }
   .panel::after  { bottom: -1px; right: -1px; border-width: 0 1px 1px 0; }
   .panel-head {
-    display: flex; align-items: center; gap: 9px;
-    padding: 11px 14px; border-bottom: 1px solid var(--line);
+    display: flex; align-items: center; gap: 9px; padding: 11px 14px;
+    border-bottom: 1px solid var(--line);
     font-family: var(--mono); font-size: 11.5px; color: var(--fg-faint); letter-spacing: .08em;
   }
   .panel-head .b { width: 8px; height: 8px; border-radius: 50%; }
-  .panel-body { padding: 16px 14px 14px; }
-  .readout { display: flex; align-items: baseline; justify-content: space-between; font-family: var(--mono); font-size: 12px; padding: 7px 0; border-bottom: 1px dashed rgba(255,255,255,.06); }
+  .panel-body { padding: 14px; }
+  .readout { display: flex; align-items: baseline; justify-content: space-between; font-family: var(--mono); font-size: 12px; padding: 6px 0; border-bottom: 1px dashed rgba(255,255,255,.06); }
   .readout:last-of-type { border-bottom: 0; }
   .readout .k { color: var(--fg-faint); letter-spacing: .06em; }
   .readout .v { color: var(--phos); }
   .readout .v.warn { color: var(--amber); }
   .readout .v.info { color: var(--cyan); }
-  #spark { display: block; width: 100%; height: 74px; margin-top: 10px; }
+  #spark { display: block; width: 100%; height: 70px; margin-top: 8px; }
 
-  /* ---------- 指标条 ---------- */
+  .term { margin-top: 10px; border-top: 1px solid var(--line); padding-top: 12px; font-family: var(--mono); font-size: 11.5px; line-height: 1.9; }
+  .term .l { color: var(--fg-faint); opacity: 0; transform: translateX(-6px); }
+  [data-js="off"] .term .l { opacity: 1; transform: none; }
+  .term.go .l { opacity: 1; transform: none; transition: opacity .45s var(--ease), transform .45s var(--ease); }
+  .term.go .l:nth-child(1) { transition-delay: .05s; }
+  .term.go .l:nth-child(2) { transition-delay: .22s; }
+  .term.go .l:nth-child(3) { transition-delay: .39s; }
+  .term.go .l:nth-child(4) { transition-delay: .56s; }
+  .term .ok { color: var(--phos); }
+
   .strip { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 3px; overflow: hidden; }
-  .cell { background: var(--bg-raise); padding: 26px 22px; transition: background .3s; }
+  .cell { background: var(--bg-raise); padding: 26px 22px; transition: background var(--mid) linear; }
   .cell:hover { background: #0f151a; }
-  .cell .num { font-family: var(--mono); font-size: clamp(26px, 3.4vw, 40px); color: var(--fg); line-height: 1; letter-spacing: -.02em; }
+  .cell .num { font-family: var(--mono); font-size: clamp(26px, 3.4vw, 40px); color: var(--fg); line-height: 1; letter-spacing: -.02em; transition: color var(--mid) linear, text-shadow var(--mid) linear; }
   .cell .num em { font-style: normal; color: var(--phos); font-size: .55em; margin-left: 4px; }
+  .cell.done .num { color: var(--phos); text-shadow: 0 0 22px rgba(124,255,178,.45); }
   .cell .cap { font-family: var(--mono); font-size: 11.5px; color: var(--fg-faint); letter-spacing: .1em; margin-top: 12px; text-transform: uppercase; }
   .cell .sub { font-size: 13px; color: var(--fg-dim); margin-top: 7px; }
 
-  /* ---------- 能力矩阵 ---------- */
+  .tilt {
+    transform: perspective(900px) rotateX(var(--tx,0deg)) rotateY(var(--ty,0deg));
+    transition: transform var(--mid) var(--ease), background var(--mid) linear, border-color var(--mid) linear;
+    transform-style: preserve-3d;
+    position: relative; overflow: hidden;
+  }
+  .tilt::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0;
+    background: radial-gradient(340px circle at var(--mx,50%) var(--my,50%), rgba(124,255,178,.10), transparent 62%);
+    transition: opacity var(--mid) linear;
+  }
+  .tilt:hover::after { opacity: 1; }
+
   .caps { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 3px; overflow: hidden; }
-  .cap { background: var(--bg-raise); padding: 30px 26px 26px; position: relative; transition: background .3s; }
-  .cap:hover { background: #0f151a; }
-  .cap::before { content: ""; position: absolute; left: 0; top: 0; width: 100%; height: 1px; background: linear-gradient(90deg, var(--accent,var(--phos)), transparent); transform: scaleX(0); transform-origin: left; transition: transform .5s cubic-bezier(.2,.7,.3,1); }
+  .cap { background: var(--bg-raise); padding: 30px 26px 26px; }
+  .cap::before { content: ""; position: absolute; left: 0; top: 0; width: 100%; height: 1px; background: linear-gradient(90deg, var(--accent,var(--phos)), transparent); transform: scaleX(0); transform-origin: left; transition: transform .55s var(--ease); }
   .cap:hover::before { transform: scaleX(1); }
   .cap h3 { font-size: 15px; margin: 0 0 4px; font-weight: 600; letter-spacing: -.01em; }
   .cap .idx { font-family: var(--mono); font-size: 11px; color: var(--accent,var(--phos)); letter-spacing: .16em; }
-  .cap ul { list-style: none; margin: 16px 0 0; padding: 0; }
+  .cap .where { font-size: 12.5px; color: var(--fg-dim); margin: 10px 0 0; }
+  .cap ul { list-style: none; margin: 14px 0 0; padding: 0; }
   .cap li { font-family: var(--mono); font-size: 12.5px; color: var(--fg-dim); padding: 5px 0 5px 15px; position: relative; }
   .cap li::before { content: "›"; position: absolute; left: 0; color: var(--accent,var(--phos)); opacity: .7; }
+  .cap .used { margin-top: 14px; padding-top: 11px; border-top: 1px dashed rgba(255,255,255,.07); font-family: var(--mono); font-size: 11px; color: var(--fg-faint); letter-spacing: .04em; }
+  .cap .used b { color: var(--accent,var(--phos)); font-weight: 400; }
 
-  /* ---------- 作品 ---------- */
-  .work { border-top: 1px solid var(--line); padding: 40px 0; display: grid; grid-template-columns: 82px minmax(0,1fr) minmax(0,.85fr); gap: clamp(18px, 3vw, 44px); position: relative; transition: background .35s; }
+  .probs { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 14px; }
+  .prob { border: 1px solid var(--line); border-radius: 3px; background: var(--bg-raise); padding: 24px 24px 22px; }
+  .prob .q { font-size: 15.5px; font-weight: 600; margin: 0 0 10px; display: flex; gap: 10px; align-items: baseline; }
+  .prob .q span { font-family: var(--mono); font-size: 11px; color: var(--rose); letter-spacing: .1em; flex: none; }
+  .prob .a { color: var(--fg-dim); font-size: 14px; margin: 0; }
+  .prob .a b { color: var(--fg); font-weight: 600; }
+  .prob .tagline { margin: 14px 0 0; font-family: var(--mono); font-size: 11.5px; color: var(--cyan); letter-spacing: .04em; }
+
+  .work { border-top: 1px solid var(--line); padding: 42px 0; display: grid; grid-template-columns: 82px minmax(0,1fr) minmax(0,.85fr); gap: clamp(18px, 3vw, 44px); position: relative; transition: background var(--mid) linear; }
   .work:last-child { border-bottom: 1px solid var(--line); }
   .work:hover { background: rgba(255,255,255,.014); }
+  .work::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 1px; background: var(--phos); transform: scaleY(0); transform-origin: top; transition: transform .5s var(--ease); }
+  .work:hover::before { transform: scaleY(1); }
   .work .no { font-family: var(--mono); font-size: 12px; color: var(--fg-faint); letter-spacing: .14em; padding-top: 6px; }
-  .work h3 { margin: 0 0 8px; font-size: clamp(20px, 2.5vw, 27px); letter-spacing: -.02em; font-weight: 600; }
+  .work h3 { margin: 0 0 10px; font-size: clamp(20px, 2.5vw, 27px); letter-spacing: -.02em; font-weight: 600; }
   .work h3 .lang { font-family: var(--mono); font-size: 11px; color: var(--cyan); border: 1px solid rgba(92,225,230,.3); padding: 2px 7px; border-radius: 2px; margin-left: 12px; vertical-align: 3px; letter-spacing: .1em; }
   .work p { color: var(--fg-dim); margin: 0 0 16px; max-width: 54ch; }
+  .hl { list-style: none; margin: 0 0 18px; padding: 0; }
+  .hl li { font-size: 13.5px; color: var(--fg-dim); padding: 5px 0 5px 18px; position: relative; }
+  .hl li::before { content: "▹"; position: absolute; left: 0; color: var(--phos); opacity: .8; font-size: 11px; }
   .tags { display: flex; flex-wrap: wrap; gap: 7px; }
-  .tag { font-family: var(--mono); font-size: 11.5px; color: var(--fg-dim); border: 1px solid var(--line); padding: 4px 9px; border-radius: 2px; }
+  .tag { font-family: var(--mono); font-size: 11.5px; color: var(--fg-dim); border: 1px solid var(--line); padding: 4px 9px; border-radius: 2px; transition: border-color var(--fast) linear, color var(--fast) linear; }
+  .tag:hover { border-color: var(--phos); color: var(--phos); }
   .facts { font-family: var(--mono); font-size: 12.5px; color: var(--fg-faint); }
   .facts div { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px dashed rgba(255,255,255,.06); }
   .facts div span:last-child { color: var(--phos); }
-  .golink { display: inline-flex; align-items: center; gap: 8px; margin-top: 18px; font-family: var(--mono); font-size: 12.5px; color: var(--phos); border-bottom: 1px solid rgba(124,255,178,.3); padding-bottom: 2px; }
+  .golink { display: inline-flex; align-items: center; gap: 8px; margin-top: 18px; font-family: var(--mono); font-size: 12.5px; color: var(--phos); border-bottom: 1px solid rgba(124,255,178,.3); padding-bottom: 2px; transition: border-color var(--fast) linear; }
   .golink:hover { border-color: var(--phos); }
-  .golink span { transition: transform .3s; }
-  .golink:hover span { transform: translateX(4px); }
+  .golink span { transition: transform var(--mid) var(--ease); }
+  .golink:hover span { transform: translateX(5px); }
 
-  /* ---------- 关于 ---------- */
-  .about { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: clamp(28px, 5vw, 72px); }
+  .prac { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 3px; overflow: hidden; }
+  .tool { background: var(--bg-raise); padding: 22px 20px; }
+  .tool .n { font-family: var(--mono); font-size: 11px; color: var(--fg-faint); letter-spacing: .14em; }
+  .tool h4 { margin: 8px 0 8px; font-size: 14.5px; font-weight: 600; }
+  .tool p { margin: 0; font-size: 12.5px; color: var(--fg-dim); line-height: 1.65; }
+  .flow { margin-top: 18px; display: grid; grid-template-columns: repeat(5, minmax(0,1fr)); gap: 10px; }
+  .step { border: 1px solid var(--line); border-radius: 3px; padding: 14px; background: rgba(255,255,255,.012); transition: border-color var(--fast) linear, transform var(--mid) var(--ease); }
+  .step:hover { border-color: var(--phos); transform: translateY(-3px); }
+  .step .s { font-family: var(--mono); font-size: 10.5px; color: var(--phos); letter-spacing: .12em; }
+  .step .t { font-size: 13px; margin-top: 6px; font-weight: 600; }
+  .step .d { font-size: 12px; color: var(--fg-dim); margin-top: 4px; }
+
+  .about { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: clamp(28px, 5vw, 72px); margin-top: 36px; }
   .about p { color: var(--fg-dim); margin: 0 0 18px; }
   .about p b { color: var(--fg); font-weight: 600; }
+  .quote { border-left: 2px solid var(--phos); padding: 4px 0 4px 18px; margin: 26px 0 0; font-family: var(--mono); font-size: 13.5px; color: var(--fg); }
   .kv { font-family: var(--mono); font-size: 12.5px; }
   .kv div { display: flex; gap: 16px; padding: 9px 0; border-bottom: 1px dashed rgba(255,255,255,.06); }
   .kv .k { color: var(--fg-faint); min-width: 96px; letter-spacing: .06em; }
 
-  /* ---------- 联系 ---------- */
-  .contact { text-align: center; padding-bottom: 90px; }
+  .contact { text-align: center; padding-bottom: 80px; }
   .contact h2 { font-size: clamp(30px, 5.4vw, 62px); margin: 0 0 18px; letter-spacing: -.035em; font-weight: 700; }
-  .contact .mail { font-family: var(--mono); font-size: clamp(14px, 2vw, 18px); color: var(--phos); border-bottom: 1px solid rgba(124,255,178,.32); padding-bottom: 3px; }
+  .contact .mail { font-family: var(--mono); font-size: clamp(14px, 2vw, 18px); color: var(--phos); border-bottom: 1px solid rgba(124,255,178,.32); padding-bottom: 3px; transition: border-color var(--fast) linear; }
   .contact .mail:hover { border-color: var(--phos); }
-  .contact .row { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 34px; }
+  .contact .row { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 32px; }
 
   footer { border-top: 1px solid var(--line); padding: 26px 0 34px; font-family: var(--mono); font-size: 11.5px; color: var(--fg-faint); }
   footer .shell { display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; }
+  footer .meta { color: #3d464c; }
 
-  /* ---------- 入场 ---------- */
+  .totop {
+    position: fixed; right: 22px; bottom: 22px; z-index: 29;
+    width: 40px; height: 40px; border-radius: 3px; cursor: pointer;
+    border: 1px solid var(--line-str); background: rgba(11,15,19,.9); color: var(--fg-dim);
+    font-family: var(--mono); font-size: 15px; line-height: 1;
+    opacity: 0; transform: translateY(10px) scale(.9); pointer-events: none;
+    transition: opacity var(--mid) linear, transform var(--mid) var(--ease), border-color var(--fast) linear, color var(--fast) linear;
+  }
+  .totop.on { opacity: 1; transform: none; pointer-events: auto; }
+  .totop:hover { border-color: var(--phos); color: var(--phos); }
+
   [data-js="on"] .reveal { opacity: 0; transform: translateY(16px); }
-  [data-js="on"] .reveal.in { opacity: 1; transform: none; transition: opacity .8s cubic-bezier(.2,.7,.3,1), transform .8s cubic-bezier(.2,.7,.3,1); }
+  [data-js="on"] .reveal.in { opacity: 1; transform: none; transition: opacity .8s var(--ease), transform .8s var(--ease); }
+  [data-js="on"] .reveal.d1.in { transition-delay: .06s; }
+  [data-js="on"] .reveal.d2.in { transition-delay: .12s; }
+  [data-js="on"] .reveal.d3.in { transition-delay: .18s; }
 
-  /* ---------- 响应式 ---------- */
-  @media (max-width: 1040px) {
+  @media (max-width: 1100px) {
     .hero-grid { grid-template-columns: minmax(0,1fr); }
     .caps { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .prac { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .flow { grid-template-columns: repeat(2, minmax(0,1fr)); }
     .strip { grid-template-columns: repeat(2, minmax(0,1fr)); }
     .about { grid-template-columns: minmax(0,1fr); }
     .work { grid-template-columns: 56px minmax(0,1fr); }
     .work .facts { grid-column: 2; }
+    .rail { display: none; }
   }
-  @media (max-width: 620px) {
-    .caps, .strip { grid-template-columns: minmax(0,1fr); }
+  @media (max-width: 640px) {
+    .caps, .strip, .prac, .flow, .probs { grid-template-columns: minmax(0,1fr); }
     .work { grid-template-columns: minmax(0,1fr); }
     .work .no { padding-top: 0; }
     .work .facts { grid-column: 1; }
     .topbar .hide-sm { display: none; }
+    .totop { right: 14px; bottom: 14px; }
   }
   @media (prefers-reduced-motion: reduce) {
     * { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
     [data-js="on"] .reveal { opacity: 1; transform: none; }
+    .tilt { transform: none !important; }
+    html { scroll-behavior: auto; }
   }
   :focus-visible { outline: 2px solid var(--phos); outline-offset: 3px; }
 </style>
@@ -260,19 +356,25 @@
 <div class="grid" aria-hidden="true"></div>
 <div class="scan" aria-hidden="true"></div>
 <div class="vig" aria-hidden="true"></div>
+<div class="spot" id="spot" aria-hidden="true"></div>
 
-<header class="topbar">
+<header class="topbar" id="topbar">
   <span class="dot" aria-hidden="true"></span>
   <span>SYSTEM ONLINE</span>
   <span class="sep hide-sm">│</span>
   <span class="hide-sm" id="stamp">--:--:-- CST</span>
-  <span class="right">
-    <a href="#works">WORKS</a>
-    <a href="https://github.com/accdmm" target="_blank" rel="noopener">GITHUB</a>
-    <a href="mailto:3414724907@qq.com">MAIL</a>
-  </span>
+  <nav class="right" aria-label="页面导航">
+    <a class="navlink" href="#caps">能力</a>
+    <a class="navlink" href="#problems">问题</a>
+    <a class="navlink" href="#works">项目</a>
+    <a class="navlink" href="#practice">工程</a>
+    <a class="navlink hide-sm" href="#about">关于</a>
+    <a class="navlink" href="#contact">联系</a>
+  </nav>
 </header>
 <div class="bar" id="bar" aria-hidden="true"></div>
+
+<nav class="rail" id="rail" aria-label="区块速览"></nav>
 
 <div class="wrap">
 
@@ -291,13 +393,13 @@
             这是我在每个项目里反复练的事。秒杀链路里 Redis 只负责快速失败，数据库的条件扣减才是最终裁决。
           </p>
           <div class="cta reveal">
-            <a class="btn primary" href="#works">查看项目 →</a>
-            <a class="btn" href="mailto:3414724907@qq.com">发邮件</a>
-            <a class="btn" href="https://github.com/accdmm" target="_blank" rel="noopener">GitHub</a>
+            <a class="btn primary magnetic" href="#works"><span>查看项目 →</span></a>
+            <a class="btn magnetic" href="mailto:3414724907@qq.com"><span>发邮件</span></a>
+            <a class="btn magnetic" href="https://github.com/accdmm" target="_blank" rel="noopener"><span>GitHub</span></a>
           </div>
         </div>
 
-        <div class="panel reveal" aria-label="运行状态面板">
+        <div class="panel reveal d2" id="panel" aria-label="运行状态面板">
           <div class="panel-head">
             <span class="b" style="background:var(--rose)"></span>
             <span class="b" style="background:var(--amber)"></span>
@@ -312,6 +414,12 @@
             <div class="readout"><span class="k">ai stack</span><span class="v info">spring ai</span></div>
             <div class="readout"><span class="k">modules compiled</span><span class="v warn">21 / 28 · OK</span></div>
             <canvas id="spark" aria-hidden="true"></canvas>
+          </div>
+          <div class="term" id="term">
+            <div class="l">$ mvn -DskipTests clean compile</div>
+            <div class="l"><span class="ok">[INFO] BUILD SUCCESS</span> · 28 modules</div>
+            <div class="l">[INFO] Redis · Kafka · ShardingSphere</div>
+            <div class="l">[INFO] Spring AI · Tool Calling · RAG</div>
           </div>
         </div>
       </div>
@@ -343,79 +451,140 @@
     </section>
 
     <section id="caps">
-      <h2 class="slabel">01 / 能力矩阵 · capability</h2>
-      <div class="caps reveal">
-        <div class="cap" style="--accent:var(--phos)">
+      <h2 class="slabel reveal">01 / 能力矩阵 · capability</h2>
+      <p class="stitle reveal">能上手做什么</p>
+      <p class="sdesc reveal">每条都标了它真正被用在哪里 —— 不是罗列名词，是说明这些工具解决过什么问题。</p>
+
+      <div class="caps">
+        <div class="cap tilt reveal" style="--accent:var(--phos)">
           <div class="idx">01</div>
           <h3>并发与一致性</h3>
+          <p class="where">高并发抢购下的「不错卖、不重卖、不丢单」</p>
           <ul>
             <li>Lua 脚本原子扣减（四重校验）</li>
             <li>一人一单 · 幂等与防重</li>
             <li>分布式锁（读写 / 公平 / 可重入）</li>
             <li>扣减对账与回滚闭环</li>
           </ul>
+          <div class="used">用在 <b>shop-pick</b> · 秒杀主链路</div>
         </div>
-        <div class="cap" style="--accent:var(--amber)">
+        <div class="cap tilt reveal d1" style="--accent:var(--amber)">
           <div class="idx">02</div>
           <h3>中间件与消息</h3>
+          <p class="where">把数据库写入移出同步链路，同时保证不丢不重</p>
           <ul>
             <li>Redis 多级缓存 / 限流</li>
             <li>Kafka 幂等生产 · 手动 ack</li>
             <li>Redisson · RabbitMQ 延迟消息</li>
             <li>Elasticsearch 检索与向量</li>
           </ul>
+          <div class="used">用在 <b>shop-pick / knowpath</b></div>
         </div>
-        <div class="cap" style="--accent:var(--cyan)">
+        <div class="cap tilt reveal d2" style="--accent:var(--cyan)">
           <div class="idx">03</div>
           <h3>数据层</h3>
+          <p class="where">订单量上来、单库单表撑不住的时候怎么办</p>
           <ul>
             <li>MySQL 索引 · MVCC · 慢查询</li>
             <li>ShardingSphere 分库分表</li>
             <li>订单路由表设计</li>
             <li>雪花算法全局 ID</li>
           </ul>
+          <div class="used">用在 <b>shop-pick</b> · 订单与对账日志</div>
         </div>
-        <div class="cap" style="--accent:var(--cyan)">
+        <div class="cap tilt reveal" style="--accent:var(--cyan)">
           <div class="idx">04</div>
           <h3>AI 工程化</h3>
+          <p class="where">让大模型真正接进业务，而不是停在聊天框里</p>
           <ul>
             <li>Spring AI · 多 Agent 路由</li>
             <li>Tool Calling 与结构化结果回传</li>
             <li>向量 RAG 检索增强</li>
             <li>SSE 流式输出</li>
           </ul>
+          <div class="used">用在 <b>knowpath</b> · AI 智能客服</div>
         </div>
-        <div class="cap" style="--accent:var(--phos)">
+        <div class="cap tilt reveal d1" style="--accent:var(--phos)">
           <div class="idx">05</div>
           <h3>框架与微服务</h3>
+          <p class="where">把单体拆成能独立部署、能独立扩容的服务</p>
           <ul>
             <li>Spring Boot 3 · Spring Cloud Alibaba</li>
             <li>Nacos 注册与配置中心</li>
             <li>MyBatis-Plus · Knife4j</li>
             <li>网关鉴权与统一响应</li>
           </ul>
+          <div class="used">用在 <b>knowpath</b> · 17 个业务域</div>
         </div>
-        <div class="cap" style="--accent:var(--amber)">
+        <div class="cap tilt reveal d2" style="--accent:var(--amber)">
           <div class="idx">06</div>
           <h3>工程化</h3>
+          <p class="where">让代码能被人接手，也能在别的机器上跑起来</p>
           <ul>
             <li>Git 流程与提交规范</li>
             <li>Maven 多模块构建</li>
             <li>Docker 容器化与脚本</li>
             <li>Linux 部署与排障</li>
           </ul>
+          <div class="used">用在 <b>两个项目的交付过程</b></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="problems">
+      <h2 class="slabel reveal">02 / 我解决过的问题 · problems</h2>
+      <p class="stitle reveal">真正花时间的地方</p>
+      <p class="sdesc reveal">写代码的时间远少于想清楚边界的时间。下面这些是我在项目里实际踩过、并且给出了方案的坑。</p>
+
+      <div class="probs">
+        <div class="prob tilt reveal">
+          <p class="q"><span>P-01</span>检查通过、扣减之前被别人抢走，怎么办？</p>
+          <p class="a">把「检查 + 扣减 + 打标记 + 写流水」合并成<b>一次 Redis 原子执行</b>，中间不留任何可被插入的窗口；校验顺序按成本排：先全局、低成本的时间与状态，用户维度的 Set 查询放最后。</p>
+          <p class="tagline">↳ shop-pick · 秒杀资格判定</p>
+        </div>
+        <div class="prob tilt reveal d1">
+          <p class="q"><span>P-02</span>Redis 扣了、数据库没落，账不就错了？</p>
+          <p class="a">承认这个窗口存在，用三层收敛：生产失败 / 消息超时 / 消费失败三处<b>自动回滚</b>（删 key 而非加减库存，保证幂等），定时任务<b>双向对账</b>并带宽限期避开在途消息，重试耗尽则落库告警交人工。</p>
+          <p class="tagline">↳ shop-pick · 一致性闭环</p>
+        </div>
+        <div class="prob tilt reveal d2">
+          <p class="q"><span>P-03</span>缓存穿透和击穿，为什么不能一套方案解决？</p>
+          <p class="a">两者成因不同：穿透是<b>查不存在的数据</b>，用布隆过滤器拦截 + 空值缓存兜误判；击穿是<b>热 key 失效瞬间</b>大量并发回源，用分布式锁 + 双重检查做单飞。</p>
+          <p class="tagline">↳ shop-pick · 多层缓存</p>
+        </div>
+        <div class="prob tilt reveal d2">
+          <p class="q"><span>P-04</span>消息重复投递，订单会重复创建吗？</p>
+          <p class="a">幂等键用<b>消息 uuid 而不是 orderId</b> —— 一次扣减可能被重投多条不同的消息，用订单号反而拦不住。再配 Redis 前置 Set 与数据库侧查重做双保险。</p>
+          <p class="tagline">↳ shop-pick · 幂等设计</p>
+        </div>
+        <div class="prob tilt reveal">
+          <p class="q"><span>P-05</span>工具返回的对象，怎么回到前端？</p>
+          <p class="a">塞进文本流会把结构弄丢。做法是请求开始生成 requestId → 经 ToolContext 传给工具 → 工具把结果<b>暂存</b> → 流尾按 requestId 取出、包装成结构化事件下发并清理。</p>
+          <p class="tagline">↳ knowpath · Tool Calling</p>
+        </div>
+        <div class="prob tilt reveal d1">
+          <p class="q"><span>P-06</span>单个外部工具挂了，整个问答就该一起挂吗？</p>
+          <p class="a">不该。健康状态按<b>服务维度隔离</b>：连续失败到阈值就熔断进快失败窗口，窗口结束放行一次探测，成功即恢复。工具不可用时返回可读原因，模型读到后改用别的能力回答。</p>
+          <p class="tagline">↳ knowpath · 工具治理思路</p>
         </div>
       </div>
     </section>
 
     <section id="works">
-      <h2 class="slabel">02 / 代表项目 · selected works</h2>
+      <h2 class="slabel reveal">03 / 代表项目 · selected works</h2>
+      <p class="stitle reveal">三个能点开看的仓库</p>
+      <p class="sdesc reveal">每个仓库的 README 都写了业务场景、设计取舍与已知限制 —— 包括没做好的部分。</p>
 
       <article class="work reveal">
         <div class="no">W.01</div>
         <div>
           <h3>shop-pick <span class="lang">JAVA</span></h3>
           <p>探店场景的高并发优惠券秒杀平台。围绕「高并发抢购」这一核心场景，解决库存超卖、缓存穿透与击穿、消息可靠性，以及 Redis 与数据库的一致性闭环。</p>
+          <ul class="hl">
+            <li>资格判定与库存扣减合并为一次 Lua 原子执行，脚本内取服务端时间防时钟篡改</li>
+            <li>Redis 预扣做性能层、DB 条件扣减做正确性层 —— 去掉 DB 的 &gt;0 条件才会真超卖</li>
+            <li>缓存失效经 Kafka 广播多实例，在写锁下同时清理本地缓存与 Redis</li>
+          </ul>
           <div class="tags">
             <span class="tag">Lua 原子扣减</span>
             <span class="tag">分层防超卖</span>
@@ -439,6 +608,11 @@
         <div>
           <h3>knowpath <span class="lang">JAVA</span></h3>
           <p>在线学习平台的微服务实现，并内置基于 Spring AI 的 AI 智能客服模块：多 Agent 可插拔路由、业务工具调用与结构化结果回传、Elasticsearch 向量 RAG、SSE 流式输出。</p>
+          <ul class="hl">
+            <li>Agent 接口用 default 钩子声明能力点，抽象类用模板方法固定流程骨架，具体 Agent 只写差异</li>
+            <li>编排层用 LLM 意图分类 + Spring 自发现分发，取代硬编码分支</li>
+            <li>自研 Redis 会话记忆，解决了消息对象无法直接 JSON 反序列化的问题</li>
+          </ul>
           <div class="tags">
             <span class="tag">17 个微服务</span>
             <span class="tag">Spring Cloud Alibaba</span>
@@ -463,6 +637,10 @@
         <div>
           <h3>edu-ai-path-master <span class="lang">JAVA / TS</span></h3>
           <p>智能学习平台：在线考试、视频学习与 AI 助手（LangChain4j + DashScope / Kimi），覆盖从课程内容到练习反馈的完整学习路径。</p>
+          <ul class="hl">
+            <li>前后端一体：Spring Boot 提供服务，Vue 3 负责交互</li>
+            <li>AI 助手接入多模型，按场景选择不同能力的模型</li>
+          </ul>
           <div class="tags">
             <span class="tag">Spring Boot</span>
             <span class="tag">Vue 3</span>
@@ -480,15 +658,74 @@
       </article>
     </section>
 
+    <section id="practice">
+      <h2 class="slabel reveal">04 / 工程实践 · practice</h2>
+      <p class="stitle reveal">交付一个项目，不只是写完代码</p>
+      <p class="sdesc reveal">从「本地能跑」到「别人也能跑」，中间这部分我当成项目的一部分来做。</p>
+
+      <div class="prac reveal">
+        <div class="tool">
+          <div class="n">T.01</div>
+          <h4>构建与依赖</h4>
+          <p>Maven 多模块聚合：统一版本管理、按需依赖、模块名与包名一致，避免「改一个模块要顺带改三处」。</p>
+        </div>
+        <div class="tool">
+          <div class="n">T.02</div>
+          <h4>提交与历史</h4>
+          <p>提交信息写清「改了什么、为什么」，而不是 update。重建仓库前先把旧历史备份好再动手。</p>
+        </div>
+        <div class="tool">
+          <div class="n">T.03</div>
+          <h4>配置与密钥</h4>
+          <p>敏感配置一律外部注入：不入库、不留明文。仓库里用占位值，真实值走配置中心或环境变量。</p>
+        </div>
+        <div class="tool">
+          <div class="n">T.04</div>
+          <h4>部署与排障</h4>
+          <p>Dockerfile + 启动脚本做容器化；日志分层、关键链路埋点，先能定位再谈优化。</p>
+        </div>
+      </div>
+
+      <div class="flow reveal">
+        <div class="step">
+          <div class="s">STEP 01</div>
+          <div class="t">想清楚边界</div>
+          <div class="d">先把失败路径列出来</div>
+        </div>
+        <div class="step">
+          <div class="s">STEP 02</div>
+          <div class="t">分层落方案</div>
+          <div class="d">性能层与正确性层分开设计</div>
+        </div>
+        <div class="step">
+          <div class="s">STEP 03</div>
+          <div class="t">写可读的代码</div>
+          <div class="d">注释写取舍，不写废话</div>
+        </div>
+        <div class="step">
+          <div class="s">STEP 04</div>
+          <div class="t">编译与自测</div>
+          <div class="d">改完必须能构建通过</div>
+        </div>
+        <div class="step">
+          <div class="s">STEP 05</div>
+          <div class="t">写清已知限制</div>
+          <div class="d">没做好的地方也写进 README</div>
+        </div>
+      </div>
+    </section>
+
     <section id="about">
-      <h2 class="slabel">03 / 关于我 · profile</h2>
+      <h2 class="slabel reveal">05 / 关于我 · profile</h2>
+      <p class="stitle reveal">我是怎么想的</p>
       <div class="about">
         <div class="reveal">
           <p>做后端，我的习惯是<b>先分清哪一层负责性能、哪一层负责正确性</b>，再谈优化。秒杀项目里 Redis 只做快速失败、数据库的条件扣减才是最终裁决 —— 去掉那个条件，才会真的超卖。</p>
-          <p>做 AI 应用，<b>不满足于把接口调通</b>。我关心工具调用的失败路径、结构化结果怎么回到前端、会话记忆的边界在哪里。这些才是"能上线"和"能演示"的区别。</p>
+          <p>做 AI 应用，<b>不满足于把接口调通</b>。我关心工具调用的失败路径、结构化结果怎么回到前端、会话记忆的边界在哪里。这些才是「能上线」和「能演示」的区别。</p>
           <p>目前正在准备 2026 年秋招，方向是 Java 后端开发。</p>
+          <p class="quote">宁可写「这里有个边界，下一步我会这样改」，也不写「已经完美解决」。</p>
         </div>
-        <div class="kv reveal">
+        <div class="kv reveal d1">
           <div><span class="k">姓名</span><span>李梦豪</span></div>
           <div><span class="k">学校</span><span>福州理工学院 · 软件工程</span></div>
           <div><span class="k">毕业</span><span>2027 年 06 月</span></div>
@@ -496,6 +733,7 @@
           <div><span class="k">求职</span><span>Java 后端开发工程师</span></div>
           <div><span class="k">城市</span><span>福州 / 广州 / 深圳</span></div>
           <div><span class="k">邮箱</span><span>3414724907@qq.com</span></div>
+          <div><span class="k">主页</span><span>accdmm.github.io</span></div>
         </div>
       </div>
     </section>
@@ -505,9 +743,9 @@
       <p class="reveal" style="color:var(--fg-dim);margin:0 0 26px">简历可随时索取，项目代码全部公开。</p>
       <a class="mail reveal" href="mailto:3414724907@qq.com">3414724907@qq.com</a>
       <div class="row reveal">
-        <a class="btn" href="https://github.com/accdmm" target="_blank" rel="noopener">GitHub</a>
-        <a class="btn" href="https://github.com/accdmm/shop-pick" target="_blank" rel="noopener">shop-pick</a>
-        <a class="btn" href="https://github.com/accdmm/knowpath" target="_blank" rel="noopener">knowpath</a>
+        <a class="btn magnetic" href="https://github.com/accdmm" target="_blank" rel="noopener"><span>GitHub</span></a>
+        <a class="btn magnetic" href="https://github.com/accdmm/shop-pick" target="_blank" rel="noopener"><span>shop-pick</span></a>
+        <a class="btn magnetic" href="https://github.com/accdmm/knowpath" target="_blank" rel="noopener"><span>knowpath</span></a>
       </div>
     </section>
   </div>
@@ -515,66 +753,107 @@
   <footer>
     <div class="shell">
       <span>© 2026 李梦豪 · 福州</span>
-      <span>纯 HTML / CSS / JS 手写 · 零框架 · 零外部请求</span>
+      <span class="meta">纯 HTML / CSS / JS 手写 · 零框架 · 零外部请求 · <span id="lu">—</span></span>
     </div>
   </footer>
 </div>
 
+<button class="totop" id="totop" aria-label="回到顶部">↑</button>
+
 <script>
 (function () {
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  var $  = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return [].slice.call((r || document).querySelectorAll(s)); };
 
-  /* ---------- 顶部时间 ---------- */
-  var stamp = document.getElementById('stamp');
-  function tick() {
+  /* ---------- 顶栏时钟 ---------- */
+  var stamp = $('#stamp');
+  function clock() {
     if (!stamp) return;
-    var d = new Date();
-    var p = function (n) { return String(n).padStart(2, '0'); };
+    var d = new Date(), p = function (n) { return String(n).padStart(2, '0'); };
     stamp.textContent = p(d.getHours()) + ':' + p(d.getMinutes()) + ':' + p(d.getSeconds()) + ' CST';
   }
-  tick(); setInterval(tick, 1000);
+  clock(); setInterval(clock, 1000);
 
-  /* ---------- 滚动进度 ---------- */
-  var bar = document.getElementById('bar');
+  /* ---------- 滚动：进度 / 顶栏隐藏 / 回到顶部 ---------- */
+  var bar = $('#bar'), topbar = $('#topbar'), totop = $('#totop'), lastY = window.scrollY;
   function onScroll() {
+    var y = window.scrollY;
     var h = document.documentElement.scrollHeight - window.innerHeight;
-    bar.style.width = (h > 0 ? (window.scrollY / h) * 100 : 0) + '%';
+    bar.style.width = (h > 0 ? (y / h) * 100 : 0) + '%';
+    topbar.classList.toggle('solid', y > 20);
+    if (y > 420 && y > lastY + 6) topbar.classList.add('hidden');
+    else if (y < lastY - 6 || y < 120) topbar.classList.remove('hidden');
+    lastY = y;
+    totop.classList.toggle('on', y > 700);
   }
   onScroll();
   window.addEventListener('scroll', onScroll, { passive: true });
+  totop.addEventListener('click', function () {
+    window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' });
+  });
 
   /* ---------- 入场 ---------- */
-  var reveals = [].slice.call(document.querySelectorAll('.reveal'));
+  var reveals = $$('.reveal');
   if ('IntersectionObserver' in window && !reduced) {
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (e, i) {
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e, i) {
         if (e.isIntersecting) {
           var el = e.target;
-          setTimeout(function () { el.classList.add('in'); }, Math.min(i * 70, 280));
+          setTimeout(function () { el.classList.add('in'); }, Math.min(i * 60, 240));
           io.unobserve(el);
         }
       });
-    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.06 });
     reveals.forEach(function (el) { io.observe(el); });
-    /* 兜底：任何情况下 2.5s 后全部显形，避免内容被隐藏 */
-    setTimeout(function () { reveals.forEach(function (el) { el.classList.add('in'); }); }, 2500);
+    setTimeout(function () { reveals.forEach(function (el) { el.classList.add('in'); }); }, 2600);
   } else {
     reveals.forEach(function (el) { el.classList.add('in'); });
   }
 
-  /* ---------- 数值滚动 ---------- */
+  /* ---------- 区块指示器 + 顶栏高亮 ---------- */
+  var secIds = ['caps', 'problems', 'works', 'practice', 'about', 'contact'];
+  var labels = { caps: '能力矩阵', problems: '问题', works: '项目', practice: '工程实践', about: '关于', contact: '联系' };
+  var rail = $('#rail');
+  secIds.forEach(function (id) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.setAttribute('data-label', labels[id]);
+    b.setAttribute('aria-label', '跳到' + labels[id]);
+    b.addEventListener('click', function () {
+      var t = document.getElementById(id);
+      if (t) window.scrollTo({ top: t.offsetTop - 60, behavior: reduced ? 'auto' : 'smooth' });
+    });
+    rail.appendChild(b);
+  });
+  var dots = $$('#rail button'), navlinks = $$('.topbar .navlink');
+  if ('IntersectionObserver' in window) {
+    var so = new IntersectionObserver(function (es) {
+      es.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        var id = e.target.id, k = secIds.indexOf(id);
+        dots.forEach(function (d, i) { d.classList.toggle('on', i === k); });
+        navlinks.forEach(function (a) { a.classList.toggle('active', a.getAttribute('href') === '#' + id); });
+      });
+    }, { rootMargin: '-45% 0px -45% 0px', threshold: 0 });
+    secIds.forEach(function (id) { var el = document.getElementById(id); if (el) so.observe(el); });
+  }
+
+  /* ---------- 数字滚动 ---------- */
   if (!reduced) {
-    [].slice.call(document.querySelectorAll('[data-count]')).forEach(function (el) {
+    $$('[data-count]').forEach(function (el) {
       var target = parseInt(el.getAttribute('data-count'), 10);
       var suffix = /<em>[\s\S]*<\/em>/.exec(el.innerHTML);
-      var seen = false;
+      var cell = el.closest('.cell'), seen = false;
       var run = function () {
-        var t0 = performance.now(), dur = 1100;
+        var t0 = performance.now(), dur = 1000;
         (function step(now) {
           var k = Math.min((now - t0) / dur, 1);
           var eased = 1 - Math.pow(1 - k, 3);
           el.innerHTML = Math.round(target * eased) + (suffix ? suffix[0] : '');
           if (k < 1) requestAnimationFrame(step);
+          else if (cell) cell.classList.add('done');
         })(t0);
       };
       if ('IntersectionObserver' in window) {
@@ -586,29 +865,106 @@
     });
   }
 
-  /* ---------- 打字机 ---------- */
-  var roleEl = document.getElementById('role');
+  /* ---------- 角色轮播：打字 / 删除 / 换下一个 ---------- */
+  var roleEl = $('#role');
   if (roleEl) {
-    var text = roleEl.textContent.replace(/\s*$/, '');
+    var roles = ['Java 后端开发工程师', '高并发与分布式一致性', '微服务治理', 'AI Agent 工程化'];
     var caret = '<span class="caret" aria-hidden="true"></span>';
+    var ri = 0, ci = 0, del = false;
     if (reduced) {
-      roleEl.innerHTML = text + caret;
+      roleEl.innerHTML = roles[0] + caret;
     } else {
-      var i = 0;
       roleEl.innerHTML = caret;
-      (function type() {
-        roleEl.innerHTML = text.slice(0, i) + caret;
-        if (i++ < text.length) setTimeout(type, 62);
-      })();
+      var loop = function () {
+        var cur = roles[ri];
+        ci += del ? -1 : 1;
+        roleEl.innerHTML = cur.slice(0, ci) + caret;
+        var wait = del ? 32 : 68;
+        if (!del && ci === cur.length) { del = true; wait = 1500; }
+        else if (del && ci === 0) { del = false; ri = (ri + 1) % roles.length; wait = 260; }
+        setTimeout(loop, wait);
+      };
+      setTimeout(loop, 500);
     }
   }
 
-  /* ---------- 粒子场 ---------- */
-  var cv = document.getElementById('field');
-  if (cv && cv.getContext) {
-    var ctx = cv.getContext('2d');
-    var nodes = [], dpr = 1, W = 0, H = 0, raf = null;
+  /* ---------- 终端逐行 ---------- */
+  var term = $('#term'), panel = $('#panel');
+  if (term && panel) {
+    if ('IntersectionObserver' in window && !reduced) {
+      var to = new IntersectionObserver(function (es) {
+        es.forEach(function (e) { if (e.isIntersecting) { term.classList.add('go'); to.disconnect(); } });
+      }, { threshold: 0.3 });
+      to.observe(panel);
+    } else {
+      term.classList.add('go');
+    }
+  }
 
+  /* ---------- 磁吸按钮 + 波纹 ---------- */
+  if (fine && !reduced) {
+    $$('.magnetic').forEach(function (el) {
+      el.addEventListener('pointermove', function (e) {
+        var r = el.getBoundingClientRect();
+        var dx = (e.clientX - (r.left + r.width / 2)) / r.width;
+        var dy = (e.clientY - (r.top + r.height / 2)) / r.height;
+        el.style.transform = 'translate(' + (dx * 6).toFixed(2) + 'px,' + (dy * 4).toFixed(2) + 'px)';
+      });
+      el.addEventListener('pointerleave', function () { el.style.transform = ''; });
+    });
+  }
+  $$('.btn').forEach(function (el) {
+    el.addEventListener('click', function (e) {
+      if (reduced) return;
+      var r = el.getBoundingClientRect();
+      var s = document.createElement('span');
+      s.className = 'ripple';
+      s.style.left = (e.clientX - r.left) + 'px';
+      s.style.top = (e.clientY - r.top) + 'px';
+      el.appendChild(s);
+      setTimeout(function () { s.remove(); }, 600);
+    });
+  });
+
+  /* ---------- 卡片透视倾斜 ---------- */
+  if (fine && !reduced) {
+    $$('.tilt').forEach(function (el) {
+      el.addEventListener('pointermove', function (e) {
+        var r = el.getBoundingClientRect();
+        var px = (e.clientX - r.left) / r.width - 0.5;
+        var py = (e.clientY - r.top) / r.height - 0.5;
+        el.style.setProperty('--tx', (-py * 5).toFixed(2) + 'deg');
+        el.style.setProperty('--ty', (px * 6).toFixed(2) + 'deg');
+        el.style.setProperty('--mx', ((px + 0.5) * 100).toFixed(1) + '%');
+        el.style.setProperty('--my', ((py + 0.5) * 100).toFixed(1) + '%');
+      });
+      el.addEventListener('pointerleave', function () {
+        el.style.setProperty('--tx', '0deg');
+        el.style.setProperty('--ty', '0deg');
+      });
+    });
+  }
+
+  /* ---------- 光标光斑（首屏） ---------- */
+  var spot = $('#spot');
+  if (spot && fine && !reduced) {
+    var sraf = null, sx = 0, sy = 0;
+    window.addEventListener('pointermove', function (e) {
+      sx = e.clientX; sy = e.clientY;
+      spot.style.opacity = e.clientY < window.innerHeight * 1.15 ? '1' : '0';
+      if (sraf) return;
+      sraf = requestAnimationFrame(function () {
+        spot.style.transform = 'translate(' + sx + 'px,' + sy + 'px)';
+        sraf = null;
+      });
+    }, { passive: true });
+    window.addEventListener('pointerleave', function () { spot.style.opacity = '0'; });
+  }
+
+  /* ---------- 粒子场 ---------- */
+  var cv = $('#field');
+  if (cv && cv.getContext) {
+    var ctx = cv.getContext('2d'), nodes = [], dpr = 1, W = 0, H = 0, raf = null, mx = -999, my = -999;
     function size() {
       dpr = Math.min(window.devicePixelRatio || 1, 2);
       W = window.innerWidth; H = window.innerHeight;
@@ -625,90 +981,81 @@
         });
       }
     }
-
+    window.addEventListener('pointermove', function (e) { mx = e.clientX; my = e.clientY; }, { passive: true });
     function draw() {
       ctx.clearRect(0, 0, W, H);
-      var linkDist = 150;
+      var link = 150;
       for (var i = 0; i < nodes.length; i++) {
         var a = nodes[i];
         if (!reduced) { a.x += a.vx; a.y += a.vy; }
-        if (a.x < -40) a.x = W + 40; if (a.x > W + 40) a.x = -40;
-        if (a.y < -40) a.y = H + 40; if (a.y > H + 40) a.y = -40;
+        if (a.x < -40) a.x = W + 40; else if (a.x > W + 40) a.x = -40;
+        if (a.y < -40) a.y = H + 40; else if (a.y > H + 40) a.y = -40;
 
         for (var j = i + 1; j < nodes.length; j++) {
-          var b = nodes[j];
-          var dx = a.x - b.x, dy = a.y - b.y;
-          var d2 = dx * dx + dy * dy;
-          if (d2 < linkDist * linkDist) {
-            var o = (1 - Math.sqrt(d2) / linkDist) * 0.16;
+          var b = nodes[j], dx = a.x - b.x, dy = a.y - b.y, d2 = dx * dx + dy * dy;
+          if (d2 < link * link) {
+            var o = (1 - Math.sqrt(d2) / link) * 0.16;
             ctx.strokeStyle = 'rgba(124,255,178,' + o.toFixed(3) + ')';
             ctx.lineWidth = 0.6;
             ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
           }
         }
-        ctx.fillStyle = 'rgba(124,255,178,0.42)';
-        ctx.beginPath(); ctx.arc(a.x, a.y, a.r, 0, Math.PI * 2); ctx.fill();
+        var near = Math.hypot(a.x - mx, a.y - my) < 150;
+        ctx.fillStyle = near ? 'rgba(124,255,178,.95)' : 'rgba(124,255,178,.42)';
+        ctx.beginPath(); ctx.arc(a.x, a.y, near ? a.r * 1.7 : a.r, 0, Math.PI * 2); ctx.fill();
       }
       if (!reduced) raf = requestAnimationFrame(draw);
     }
-
     size(); draw();
     var rt;
     window.addEventListener('resize', function () {
       clearTimeout(rt);
-      rt = setTimeout(function () {
-        if (raf) cancelAnimationFrame(raf);
-        size(); draw();
-      }, 220);
+      rt = setTimeout(function () { if (raf) cancelAnimationFrame(raf); size(); draw(); }, 220);
     });
   }
 
   /* ---------- 脉冲波形 ---------- */
-  var sp = document.getElementById('spark');
+  var sp = $('#spark');
   if (sp && sp.getContext) {
-    var sctx = sp.getContext('2d'), pts = [], t = 0, sraf = null;
+    var sctx = sp.getContext('2d'), pts = [], t = 0, dim = null;
     function sparkSize() {
       var d = Math.min(window.devicePixelRatio || 1, 2);
-      var w = sp.clientWidth || 320, h = 74;
+      var w = sp.clientWidth || 320, h = 70;
       sp.width = Math.floor(w * d); sp.height = Math.floor(h * d);
       sctx.setTransform(d, 0, 0, d, 0, 0);
-      return { w: w, h: h };
+      dim = { w: w, h: h };
     }
-    var dim = sparkSize();
+    sparkSize();
     for (var k = 0; k < 64; k++) pts.push(0.5);
-
     function sparkDraw() {
       var w = dim.w, h = dim.h;
       sctx.clearRect(0, 0, w, h);
-      sctx.strokeStyle = 'rgba(255,255,255,.06)';
-      sctx.lineWidth = 1;
-      for (var g = 1; g < 4; g++) {
-        sctx.beginPath(); sctx.moveTo(0, h * g / 4); sctx.lineTo(w, h * g / 4); sctx.stroke();
-      }
+      sctx.strokeStyle = 'rgba(255,255,255,.06)'; sctx.lineWidth = 1;
+      for (var g = 1; g < 4; g++) { sctx.beginPath(); sctx.moveTo(0, h * g / 4); sctx.lineTo(w, h * g / 4); sctx.stroke(); }
       pts.shift();
       var base = 0.5 + Math.sin(t * 0.06) * 0.12;
-      var spike = (Math.random() < 0.07) ? (Math.random() * 0.42) : 0;
+      var spike = Math.random() < 0.07 ? Math.random() * 0.42 : 0;
       pts.push(Math.max(0.06, Math.min(0.94, base + (Math.random() - 0.5) * 0.14 + spike)));
-
       sctx.beginPath();
       for (var i = 0; i < pts.length; i++) {
-        var x = (i / (pts.length - 1)) * w;
-        var y = h - pts[i] * h;
+        var x = (i / (pts.length - 1)) * w, y = h - pts[i] * h;
         if (i === 0) sctx.moveTo(x, y); else sctx.lineTo(x, y);
       }
-      sctx.strokeStyle = 'rgba(124,255,178,.9)';
-      sctx.lineWidth = 1.4;
-      sctx.stroke();
-
-      var lastY = h - pts[pts.length - 1] * h;
+      sctx.strokeStyle = 'rgba(124,255,178,.9)'; sctx.lineWidth = 1.4; sctx.stroke();
       sctx.fillStyle = 'rgba(124,255,178,1)';
-      sctx.beginPath(); sctx.arc(w - 1.5, lastY, 2.2, 0, Math.PI * 2); sctx.fill();
-
+      sctx.beginPath(); sctx.arc(w - 1.5, h - pts[pts.length - 1] * h, 2.2, 0, Math.PI * 2); sctx.fill();
       t++;
-      if (!reduced) sraf = requestAnimationFrame(sparkDraw);
+      if (!reduced) requestAnimationFrame(sparkDraw);
     }
     sparkDraw();
-    window.addEventListener('resize', function () { dim = sparkSize(); if (!reduced) sparkDraw(); });
+    window.addEventListener('resize', function () { sparkSize(); if (!reduced) sparkDraw(); });
+  }
+
+  /* ---------- 页脚最后更新 ---------- */
+  var lu = $('#lu');
+  if (lu) {
+    var d = new Date();
+    lu.textContent = '更新于 ' + d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
   }
 })();
 </script>
